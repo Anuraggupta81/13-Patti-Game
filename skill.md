@@ -68,6 +68,23 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | AUTH-04 | Retired: session and logout removed. See PRIV-02. | Retired | Brief change |
 | AUTH-05 | Retired: PIN field removed. See PRIV-01. | Retired | Brief change |
 
+## 3A. First launch: legal confirmation and age check
+
+Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1.0, 22 November 2026). The text is in `src/legal/content.ts`.
+
+| ID | Rule | Status | Source |
+|----|------|--------|--------|
+| LEGAL-01 | On first launch, the first screen shows the Privacy Notice and Terms of Use. The player can open each one in full. | Confirmed | Brief |
+| LEGAL-02 | The player confirms once by ticking "I have read and agree to the Privacy Notice and Terms of Use." and tapping "Accept & Continue". The button stays disabled until the box is ticked. | Confirmed | Brief |
+| LEGAL-03 | The confirmation is stored on the device (`patti.consent`). It is not asked again on later launches. | Confirmed | Brief |
+| LEGAL-04 | The confirmation is asked again only when `LEGAL_VERSION` changes. | Assumed | Implementation |
+| LEGAL-05 | The Privacy Notice and Terms of Use can be read again from the home screen at any time. | Confirmed | Documents (Settings menu reference) |
+| AGE-01 | After the legal confirmation, the second screen asks "Are you 18 or over?" with two buttons: "I am Over 18" and "No, I am under 18". | Confirmed | Brief |
+| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. The question is not asked again. | Confirmed | Brief |
+| AGE-03 | Choosing "No, I am under 18" shows "Minors are not allowed to play the game." and a countdown. The app closes after 3 seconds. | Confirmed | Brief |
+| AGE-04 | The under-18 answer is not stored. The question is asked again on the next launch. | Assumed | Implementation |
+| ORDER-01 | First-launch order: Privacy Notice and Terms, then the age check, then character setup, then home. Each step is shown only if it has not been completed. | Assumed | Brief (order implied); confirm |
+
 ## 4. Game rules
 
 ### 4.1 Setup and round
@@ -311,6 +328,10 @@ Feature: Resume an unsaved game
 | Q-06 | Should the player be able to reset their progress from inside the app? (Current: no reset option.) | DB-09 |
 | Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
 | Q-08 | What is the Android package name for release? | SCOPE-01 |
+| Q-09 | The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
+| Q-10 | The documents say the game is only for Australia and India. The app does not check location. Should it? | Terms s.2 |
+| Q-11 | Is the first-launch order (legal, then age, then setup) right? | ORDER-01 |
+| Q-12 | Should the under-18 answer be remembered on the device, so the player is blocked on the next launch too? (Current: no.) | AGE-04 |
 
 ## 11. Glossary
 

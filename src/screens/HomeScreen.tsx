@@ -7,6 +7,8 @@ import { colors, radius } from '../theme';
 import { AvatarBadge } from '../components/AvatarBadge';
 import { ChoiceRow } from '../components/ChoiceRow';
 import { RULES_TEXT } from '../rulesText';
+import { LegalDocView } from '../components/LegalDocView';
+import { LegalDocument, PRIVACY_NOTICE, TERMS_OF_USE } from '../legal/content';
 
 interface Props {
   profile: Profile;
@@ -19,6 +21,7 @@ export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
   const [showHistory, setShowHistory] = useState(false);
   const [showHouse, setShowHouse] = useState(false);
   const [rules, setRules] = useState<HouseRules>(DEFAULT_RULES);
+  const [legalDoc, setLegalDoc] = useState<LegalDocument | null>(null);
 
   const avatar = avatarById(profile.avatarId);
   const winRate = profile.played ? Math.round((profile.won / profile.played) * 100) : 0;
@@ -104,6 +107,26 @@ export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
           <Text style={styles.secondaryText}>History</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.bottomRow}>
+        <TouchableOpacity
+          style={styles.secondary}
+          onPress={() => setLegalDoc(PRIVACY_NOTICE)}
+          accessibilityRole="button"
+          accessibilityHint="Opens the Privacy Notice"
+        >
+          <Text style={styles.secondaryText}>Privacy Notice</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.secondary}
+          onPress={() => setLegalDoc(TERMS_OF_USE)}
+          accessibilityRole="button"
+          accessibilityHint="Opens the Terms of Use"
+        >
+          <Text style={styles.secondaryText}>Terms of Use</Text>
+        </TouchableOpacity>
+      </View>
+      <LegalDocView doc={legalDoc} onClose={() => setLegalDoc(null)} />
 
       {/* House rules sheet */}
       <Modal visible={showHouse} transparent animationType="slide" onRequestClose={() => setShowHouse(false)}>

@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AVATARS, isAvatarUnlocked } from './avatars';
 import { checkCharacterName } from './characterName';
+import type { Consent } from './legal/consent';
 import { MatchState } from './game/types';
 
 /**
@@ -34,6 +35,25 @@ export interface SavedGame {
 
 const KEY_PROFILE = 'patti.profile';
 const KEY_GAME = 'patti.activeGame';
+const KEY_CONSENT = 'patti.consent';
+
+// ---- Consent (privacy and terms, age) ----
+
+export async function loadConsent(): Promise<Consent | null> {
+  const stored = await readJson<Partial<Consent>>(KEY_CONSENT);
+  if (!stored || typeof stored !== 'object') return null;
+  const text = (v: unknown) => (typeof v === 'string' ? v : null);
+  return {
+    legalVersion: text(stored.legalVersion),
+    legalAcceptedAt: text(stored.legalAcceptedAt),
+    over18ConfirmedAt: text(stored.over18ConfirmedAt),
+  };
+}
+
+/** Returns true only when the consent record was written to storage. */
+export async function saveConsent(consent: Consent): Promise<boolean> {
+  return writeJson(KEY_CONSENT, consent);
+}
 
 export const DEFAULT_PROFILE: Profile = {
   characterName: '',

@@ -7,18 +7,30 @@ import { Difficulty, HouseRules, MatchState, PlayerSeat } from './src/game/types
 import {
   clearActiveGame,
   loadActiveGame,
+  loadConsent,
   loadProfile,
   MatchRecord,
   Profile,
   saveActiveGame,
+  saveConsent,
   saveProfile,
 } from './src/storage';
+import {
+  Consent,
+  needsAgeConfirmation,
+  needsLegalAcceptance,
+  NO_CONSENT,
+  withAdultConfirmed,
+  withLegalAccepted,
+} from './src/legal/consent';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { GameScreen } from './src/screens/GameScreen';
 import { SetupScreen } from './src/screens/SetupScreen';
+import { LegalConsentScreen } from './src/screens/LegalConsentScreen';
+import { AgeGateScreen } from './src/screens/AgeGateScreen';
 import { colors } from './src/theme';
 
-type Screen = 'loading' | 'setup' | 'home' | 'game';
+type Screen = 'loading' | 'legal' | 'age' | 'setup' | 'home' | 'game';
 
 /** Stars earned for winning a match, by difficulty (from the mock-up: Easy 1, Medium 2, Hard 3). */
 const STARS_FOR: Record<Difficulty, number> = { easy: 1, medium: 2, hard: 3 };
@@ -33,24 +45,36 @@ function buildSeats(profile: Profile): PlayerSeat[] {
   ];
 }
 
+/**
+ * First-launch order: Privacy Notice and Terms (once per legal version),
+ * then the over-18 check (once), then the character setup (once).
+ * After that the player goes straight to the home screen.
+ */
+function firstScreenFor(consent: Consent, profile: Profile): Screen {
+  if (needsLegalAcceptance(consent)) return 'legal';
+  if (needsAgeConfirmation(consent)) return 'age';
+  if (!profile.characterName) return 'setup';
+  return 'home';
+}
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
   const [setupMode, setSetupMode] = useState<'first' | 'edit'>('first');
+  const [consent, setConsent] = useState<Consent>(NO_CONSENT);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [game, setGame] = useState<MatchState | null>(null);
 
-  // On launch: load progress. First launch goes to setup; otherwise offer any unsaved game.
+  // On launch: load consent and progress, then show the first screen that is still needed.
   useEffect(() => {
     (async () => {
-      const loaded = await loadProfile();
-      setProfile(loaded);
-      if (!loaded.characterName) {
-        setSetupMode('first');
-        setScreen('setup');
-        return;
-      }
-      setScreen('home');
-      offerUnsavedGame();
+      const [loadedConsent, loadedProfile] = await Promise.all([loadConsent(), loadProfile()]);
+      const current = loadedConsent ?? NO_CONSENT;
+      setConsent(current);
+      setProfile(loadedProfile);
+      setSetupMode('first');
+      const next = firstScreenFor(current, loadedProfile);
+      setScreen(next);
+      if (next === 'home') offerUnsavedGame();
     })();
   }, []);
 
@@ -77,6 +101,30 @@ export default function App() {
         { cancelable: false },
       );
     });
+  }
+
+  /** Player accepted the Privacy Notice and Terms. Saved once per legal version. */
+  async function acceptLegal() {
+    const updated = withLegalAccepted(consent, new Date());
+    const saved = await saveConsent(updated);
+    if (!saved) {
+      Alert.alert('Could not save', 'Could not save your choice. Please try again.');
+      return;
+    }
+    setConsent(updated);
+    setScreen(firstScreenFor(updated, profile!));
+  }
+
+  /** Player confirmed they are over 18. Saved once. */
+  async function confirmOver18() {
+    const updated = withAdultConfirmed(consent, new Date());
+    const saved = await saveConsent(updated);
+    if (!saved) {
+      Alert.alert('Could not save', 'Could not save your choice. Please try again.');
+      return;
+    }
+    setConsent(updated);
+    setScreen(firstScreenFor(updated, profile!));
   }
 
   /** Play Now: if an unsaved game exists, ask first; otherwise start fresh. */
@@ -155,12 +203,8 @@ export default function App() {
       return;
     }
     setProfile(updated);
-    if (setupMode === 'first') {
-      setScreen('home');
-      offerUnsavedGame();
-    } else {
-      setScreen('home');
-    }
+    setScreen('home');
+    if (setupMode === 'first') offerUnsavedGame();
   }
 
   return (
@@ -172,6 +216,8 @@ export default function App() {
             <ActivityIndicator color={colors.accent} size="large" />
           </View>
         )}
+        {screen === 'legal' && <LegalConsentScreen onAccept={acceptLegal} />}
+        {screen === 'age' && <AgeGateScreen onOver18={confirmOver18} />}
         {screen === 'setup' && profile && (
           <SetupScreen
             mode={setupMode}
