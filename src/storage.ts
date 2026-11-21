@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AVATARS, isAvatarUnlocked } from './avatars';
+import { checkCharacterName } from './characterName';
 import { MatchState } from './game/types';
 
 /**
@@ -16,6 +17,8 @@ export interface MatchRecord {
 }
 
 export interface Profile {
+  /** The character's game name. Empty until the player sets it on first launch. */
+  characterName: string;
   avatarId: string;
   played: number;
   won: number;
@@ -33,6 +36,7 @@ const KEY_PROFILE = 'patti.profile';
 const KEY_GAME = 'patti.activeGame';
 
 export const DEFAULT_PROFILE: Profile = {
+  characterName: '',
   avatarId: 'billu',
   played: 0,
   won: 0,
@@ -80,7 +84,9 @@ export function sanitizeProfile(stored: unknown): Profile {
   if (!stored || typeof stored !== 'object') return { ...DEFAULT_PROFILE, history: [] };
   const s = stored as Partial<Record<keyof Profile, unknown>>;
   const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : 0);
+  const checked = typeof s.characterName === 'string' ? checkCharacterName(s.characterName) : null;
   const profile: Profile = {
+    characterName: checked && checked.ok ? checked.name : '',
     avatarId: DEFAULT_PROFILE.avatarId,
     played: count(s.played),
     won: count(s.won),

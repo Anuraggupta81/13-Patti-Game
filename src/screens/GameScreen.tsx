@@ -156,9 +156,9 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
           const avatar = avatarById(seat.avatarId);
           return (
             <View key={i} style={styles.scoreSeat}>
-              <AvatarBadge avatar={avatar} size={48} selected={i === HUMAN_SEAT} />
+              <AvatarBadge avatar={avatar} size={48} selected={i === HUMAN_SEAT} showName={false} />
               <Text style={styles.scoreName} numberOfLines={1}>
-                {seat.isHuman ? 'You' : seat.name}
+                {seat.name}
               </Text>
               <Text style={styles.scoreValue}>{match.totalPoints[i]}</Text>
             </View>
@@ -244,8 +244,8 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
             <Text style={styles.sheetTitle}>Round {match.round} done</Text>
             {seats.map((seat, i) => (
               <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} />
-                <Text style={styles.resultName}>{seat.isHuman ? 'You' : seat.name}</Text>
+                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>{seat.name}</Text>
                 <Text style={styles.resultGain}>+{match.roundPoints[i]}</Text>
                 <Text style={styles.resultTotal}>{match.totalPoints[i]}</Text>
               </View>
@@ -266,8 +266,8 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
             <Text style={styles.sheetTitle}>{resultHeadline(match)}</Text>
             {seats.map((seat, i) => (
               <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} />
-                <Text style={styles.resultName}>{seat.isHuman ? 'You' : seat.name}</Text>
+                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>{seat.name}</Text>
                 <Text style={styles.resultTotal}>{match.totalPoints[i]} pts</Text>
               </View>
             ))}
@@ -312,9 +312,9 @@ function RevealView({ match }: { match: MatchState }) {
         const isWinner = started && winners.includes(s);
         return (
           <View key={s} style={[styles.revealRow, isWinner && styles.revealWinner]}>
-            <AvatarBadge avatar={avatarById(seat.avatarId)} size={44} />
+            <AvatarBadge avatar={avatarById(seat.avatarId)} size={44} showName={false} />
             <View style={styles.revealInfo}>
-              <Text style={styles.revealName}>{seat.isHuman ? 'You' : seat.name}</Text>
+              <Text style={styles.revealName}>{seat.name}</Text>
               {started ? <Text style={styles.revealCat}>{CATEGORY_LABEL[score.category]}</Text> : null}
             </View>
             <View style={styles.revealCards}>
@@ -331,7 +331,7 @@ function RevealView({ match }: { match: MatchState }) {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bg, paddingTop: 40 },
+  flex: { flex: 1, backgroundColor: colors.bg },
   topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 10 },
   iconButton: {
     width: 44,

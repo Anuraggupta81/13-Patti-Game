@@ -5,7 +5,7 @@ Play against 3 computer rivals. No login, no personal details, and nothing is se
 
 ## Features
 
-- **No login**: open the app and play. No name, PIN, or account is asked for.
+- **No login**: there is no account, PIN, or personal detail. On first launch you type a character name (up to 12 characters) and pick a character. You can change both later from the home screen.
 - **Progress on the device**: played, won, win rate, total points, stars, and history are kept on the phone only. The player is shown as "You".
 - **Avatar**: tap your avatar on the home screen to choose one. Stars unlock more avatars.
 - **Home**: Play Now, record, Rules, and History.

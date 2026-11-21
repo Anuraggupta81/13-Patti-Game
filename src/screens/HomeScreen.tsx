@@ -11,14 +11,13 @@ import { RULES_TEXT } from '../rulesText';
 interface Props {
   profile: Profile;
   onStart: (rules: HouseRules) => void;
-  onChangeAvatar: (avatarId: string) => void;
+  onEditCharacter: () => void;
 }
 
-export function HomeScreen({ profile, onStart, onChangeAvatar }: Props) {
+export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showHouse, setShowHouse] = useState(false);
-  const [showAvatars, setShowAvatars] = useState(false);
   const [rules, setRules] = useState<HouseRules>(DEFAULT_RULES);
 
   const avatar = avatarById(profile.avatarId);
@@ -29,16 +28,21 @@ export function HomeScreen({ profile, onStart, onChangeAvatar }: Props) {
     <ScrollView style={styles.flex} contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => setShowAvatars(true)}
+          onPress={onEditCharacter}
           accessibilityRole="button"
-          accessibilityLabel="Change avatar"
+          accessibilityLabel={`Edit character ${profile.characterName}`}
         >
-          <AvatarBadge avatar={avatar} size={56} />
+          <AvatarBadge avatar={avatar} size={56} showName={false} />
         </TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={styles.muted}>Welcome back</Text>
-          <Text style={styles.name}>You</Text>
+          <Text style={styles.name} numberOfLines={1}>
+            {profile.characterName}
+          </Text>
         </View>
+        <TouchableOpacity style={styles.pill} onPress={onEditCharacter} accessibilityRole="button">
+          <Text style={styles.pillText}>Edit</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.hero}>
@@ -84,9 +88,9 @@ export function HomeScreen({ profile, onStart, onChangeAvatar }: Props) {
         </View>
         {nextLocked ? (
           <View style={styles.nextRow}>
-            <AvatarBadge avatar={nextLocked} size={40} locked />
+            <AvatarBadge avatar={nextLocked} size={40} locked showName={false} />
             <Text style={styles.nextText}>
-              Next avatar at {nextLocked.unlockStars} stars
+              Next character at {nextLocked.unlockStars} stars
             </Text>
           </View>
         ) : null}
@@ -153,40 +157,6 @@ export function HomeScreen({ profile, onStart, onChangeAvatar }: Props) {
         </View>
       </Modal>
 
-      {/* Avatar picker */}
-      <Modal visible={showAvatars} transparent animationType="slide" onRequestClose={() => setShowAvatars(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setShowAvatars(false)} />
-        <View style={[styles.sheet, { maxHeight: '80%' }]}>
-          <View style={styles.handle} />
-          <Text style={styles.sheetTitle}>Pick your avatar</Text>
-          <Text style={styles.muted}>Win matches to earn stars. Stars unlock new avatars.</Text>
-          <ScrollView>
-            <View style={styles.avatarGrid}>
-              {AVATARS.map((a) => {
-                const unlocked = isAvatarUnlocked(a, profile.stars);
-                return (
-                  <View key={a.id} style={styles.avatarCell}>
-                    <AvatarBadge
-                      avatar={a}
-                      locked={!unlocked}
-                      selected={profile.avatarId === a.id}
-                      onPress={
-                        unlocked
-                          ? () => {
-                              onChangeAvatar(a.id);
-                              setShowAvatars(false);
-                            }
-                          : undefined
-                      }
-                    />
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        </View>
-      </Modal>
-
       {/* Rules */}
       <Modal visible={showRules} transparent animationType="slide" onRequestClose={() => setShowRules(false)}>
         <Pressable style={styles.backdrop} onPress={() => setShowRules(false)} />
@@ -247,10 +217,19 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: 16, paddingTop: 48, paddingBottom: 32 },
+  container: { padding: 16, paddingTop: 16, paddingBottom: 32 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   muted: { color: colors.textMuted, fontSize: 13 },
   name: { color: colors.text, fontSize: 22, fontWeight: '800' },
+  pill: {
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radius.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: colors.surface,
+  },
+  pillText: { color: colors.text, fontWeight: '600' },
   hero: {
     backgroundColor: colors.tableGreen,
     borderRadius: radius.lg,
@@ -349,8 +328,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   startText: { color: colors.accentText, fontWeight: '800', fontSize: 17 },
-  avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 },
-  avatarCell: { width: '25%', alignItems: 'center', paddingVertical: 8 },
   historyRow: {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

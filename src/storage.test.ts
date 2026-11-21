@@ -93,6 +93,29 @@ describe('invalid avatar data falls back to the default', () => {
   });
 });
 
+describe('character name is remembered', () => {
+  it('starts with an empty name so the setup screen is shown', async () => {
+    expect((await loadProfile()).characterName).toBe('');
+  });
+
+  it('keeps the character name after save and reload', async () => {
+    await saveProfile({ ...DEFAULT_PROFILE, characterName: 'Raju', avatarId: 'sheru' });
+    const loaded = await loadProfile();
+    expect(loaded.characterName).toBe('Raju');
+    expect(loaded.avatarId).toBe('sheru');
+  });
+
+  it('drops a stored name that breaks the name rules', () => {
+    expect(sanitizeProfile({ characterName: 'Ram<3' }).characterName).toBe('');
+    expect(sanitizeProfile({ characterName: 'x'.repeat(40) }).characterName).toBe('');
+    expect(sanitizeProfile({ characterName: 42 }).characterName).toBe('');
+  });
+
+  it('keeps a valid stored name with extra spaces tidied', () => {
+    expect(sanitizeProfile({ characterName: '  Anu  ' }).characterName).toBe('Anu');
+  });
+});
+
 describe('save failures are reported', () => {
   it('returns false when storage refuses the write', async () => {
     jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('storage full'));

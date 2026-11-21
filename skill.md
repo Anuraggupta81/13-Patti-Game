@@ -49,11 +49,19 @@ Rule IDs never change once published. Retire a rule by setting its status to
 
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
-| PRIV-01 | The app does not ask for a name, PIN, email, phone number, or any other personal detail. | Confirmed | Brief |
+| PRIV-01 | The app does not ask for a real name, PIN, email, phone number, or any other personal detail. The only name asked for is the character name (CHAR-01). | Confirmed | Brief |
 | PRIV-02 | The app has no login and no sign-up. The game starts from the home screen. | Confirmed | Brief |
-| PRIV-03 | The player is shown as "You" everywhere in the app. | Confirmed | Implementation |
+| PRIV-03 | Retired: the player was shown as "You". The character name is shown instead (CHAR-03). | Retired | Brief change |
 | PRIV-04 | The avatar is a game preference and holds no personal detail. The player can change it from the home screen. | Assumed | Implementation |
 | PRIV-05 | The app does not collect device identifiers, location, contacts, or analytics. | Confirmed | SCOPE-03 |
+| CHAR-01 | On first launch, the player types a character name and picks a character before playing. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
+| CHAR-02 | "Save & Continue" stays disabled until the name is valid. An error message explains what is wrong. | Confirmed | Implementation |
+| CHAR-03 | The character name is shown at the table, on the scoreboard, and on the home screen. | Confirmed | Brief |
+| CHAR-04 | The player can edit the character name and avatar later from the home screen. Cancel keeps the old values. | Confirmed | Implementation |
+| CHAR-05 | The character name is a game name. It is not a login and must not be a real name, email, or phone number. | Confirmed | Brief |
+| CHAR-06 | Only unlocked characters can be picked. Locked characters show a lock and "???". | Confirmed | STAR-04 |
+| LAYOUT-01 | Screens respect the phone's status bar and navigation bar. No button sits under the system bars. | Confirmed | Brief (screenshot 22 Nov) |
+| LAYOUT-02 | Avatars do not show a second name where the screen already shows one. | Confirmed | Brief (screenshot 22 Nov) |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |

@@ -8,10 +8,12 @@ interface Props {
   size?: number;
   locked?: boolean;
   selected?: boolean;
+  /** Show the avatar's own name under the circle. Turn off where the screen already shows a name. */
+  showName?: boolean;
   onPress?: () => void;
 }
 
-export function AvatarBadge({ avatar, size = 64, locked, selected, onPress }: Props) {
+export function AvatarBadge({ avatar, size = 64, locked, selected, showName = true, onPress }: Props) {
   const body = (
     <View style={[styles.wrap, { width: size, height: size }]}>
       <View
@@ -28,9 +30,11 @@ export function AvatarBadge({ avatar, size = 64, locked, selected, onPress }: Pr
       >
         <Text style={{ fontSize: size * 0.45 }}>{locked ? '🔒' : avatar.glyph}</Text>
       </View>
-      <Text style={[styles.name, selected && { color: colors.accent }]} numberOfLines={1}>
-        {locked ? '???' : avatar.name}
-      </Text>
+      {showName ? (
+        <Text style={[styles.name, selected && { color: colors.accent }]} numberOfLines={1}>
+          {locked ? '???' : avatar.name}
+        </Text>
+      ) : null}
     </View>
   );
   const label = locked ? 'Locked avatar' : `${avatar.name} avatar`;

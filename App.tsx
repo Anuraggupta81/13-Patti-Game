@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { createMatch, HUMAN_SEAT, matchWinners } from './src/game/engine';
 import { Difficulty, HouseRules, MatchState, PlayerSeat } from './src/game/types';
 import {
@@ -14,17 +15,18 @@ import {
 } from './src/storage';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { GameScreen } from './src/screens/GameScreen';
+import { SetupScreen } from './src/screens/SetupScreen';
 import { colors } from './src/theme';
 
-type Screen = 'loading' | 'home' | 'game';
+type Screen = 'loading' | 'setup' | 'home' | 'game';
 
 /** Stars earned for winning a match, by difficulty (from the mock-up: Easy 1, Medium 2, Hard 3). */
 const STARS_FOR: Record<Difficulty, number> = { easy: 1, medium: 2, hard: 3 };
 
-/** The player is shown as "You". No name is asked for or stored. */
-function buildSeats(avatarId: string): PlayerSeat[] {
+/** The player's seat uses their chosen character name. */
+function buildSeats(profile: Profile): PlayerSeat[] {
   return [
-    { name: 'You', avatarId, isHuman: true },
+    { name: profile.characterName, avatarId: profile.avatarId, isHuman: true },
     { name: 'Shakti', avatarId: 'shakti', isHuman: false },
     { name: 'Shwaan', avatarId: 'shwaan', isHuman: false },
     { name: 'Mahabali', avatarId: 'mahabali', isHuman: false },
@@ -33,14 +35,20 @@ function buildSeats(avatarId: string): PlayerSeat[] {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
+  const [setupMode, setSetupMode] = useState<'first' | 'edit'>('first');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [game, setGame] = useState<MatchState | null>(null);
 
-  // On launch: load progress, then offer to continue any unsaved game.
+  // On launch: load progress. First launch goes to setup; otherwise offer any unsaved game.
   useEffect(() => {
     (async () => {
       const loaded = await loadProfile();
       setProfile(loaded);
+      if (!loaded.characterName) {
+        setSetupMode('first');
+        setScreen('setup');
+        return;
+      }
       setScreen('home');
       offerUnsavedGame();
     })();
@@ -77,7 +85,7 @@ export default function App() {
     const saved = await loadActiveGame();
     const startFresh = () => {
       clearActiveGame();
-      setGame(createMatch(rules, buildSeats(profile.avatarId), Math.random));
+      setGame(createMatch(rules, buildSeats(profile), Math.random));
       setScreen('game');
     };
     if (saved) {
@@ -137,35 +145,58 @@ export default function App() {
     setScreen('home');
   }
 
-  /** Shows the new avatar only once it is saved. If saving fails, the old one stays. */
-  async function changeAvatar(avatarId: string): Promise<boolean> {
-    if (!profile) return false;
-    const updated = { ...profile, avatarId };
+  /** Saves the character name and avatar. The new values show only once saved. */
+  async function saveCharacter(characterName: string, avatarId: string) {
+    if (!profile) return;
+    const updated: Profile = { ...profile, characterName, avatarId };
     const saved = await saveProfile(updated);
-    if (saved) setProfile(updated);
-    else Alert.alert('Could not save', 'Could not save your avatar. Please try again.');
-    return saved;
+    if (!saved) {
+      Alert.alert('Could not save', 'Could not save your character. Please try again.');
+      return;
+    }
+    setProfile(updated);
+    if (setupMode === 'first') {
+      setScreen('home');
+      offerUnsavedGame();
+    } else {
+      setScreen('home');
+    }
   }
 
   return (
-    <SafeAreaView style={styles.root}>
-      <StatusBar style="light" />
-      {screen === 'loading' && (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.accent} size="large" />
-        </View>
-      )}
-      {screen === 'home' && profile && (
-        <HomeScreen profile={profile} onStart={startMatch} onChangeAvatar={changeAvatar} />
-      )}
-      {screen === 'game' && profile && game && (
-        <GameScreen
-          initialMatch={game}
-          onSuspend={suspendGame}
-          onFinish={finishGame}
-        />
-      )}
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.root} edges={['top', 'bottom', 'left', 'right']}>
+        <StatusBar style="light" />
+        {screen === 'loading' && (
+          <View style={styles.center}>
+            <ActivityIndicator color={colors.accent} size="large" />
+          </View>
+        )}
+        {screen === 'setup' && profile && (
+          <SetupScreen
+            mode={setupMode}
+            initialName={profile.characterName}
+            initialAvatarId={profile.avatarId}
+            stars={profile.stars}
+            onSave={saveCharacter}
+            onCancel={() => setScreen('home')}
+          />
+        )}
+        {screen === 'home' && profile && (
+          <HomeScreen
+            profile={profile}
+            onStart={startMatch}
+            onEditCharacter={() => {
+              setSetupMode('edit');
+              setScreen('setup');
+            }}
+          />
+        )}
+        {screen === 'game' && profile && game && (
+          <GameScreen initialMatch={game} onSuspend={suspendGame} onFinish={finishGame} />
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
