@@ -4,71 +4,60 @@ import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, View } from 'react-
 import { createMatch, HUMAN_SEAT, matchWinners } from './src/game/engine';
 import { Difficulty, HouseRules, MatchState, PlayerSeat } from './src/game/types';
 import {
-  Account,
   clearActiveGame,
-  getSessionUser,
   loadActiveGame,
-  logout,
+  loadProfile,
   MatchRecord,
+  Profile,
   saveActiveGame,
-  updateAccount,
+  saveProfile,
 } from './src/storage';
-import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { GameScreen } from './src/screens/GameScreen';
 import { colors } from './src/theme';
 
-type Screen = 'loading' | 'login' | 'home' | 'game';
+type Screen = 'loading' | 'home' | 'game';
 
 /** Stars earned for winning a match, by difficulty (from the mock-up: Easy 1, Medium 2, Hard 3). */
 const STARS_FOR: Record<Difficulty, number> = { easy: 1, medium: 2, hard: 3 };
 
-function buildSeats(account: Account): PlayerSeat[] {
-  const names = ['Shakti', 'Shwaan', 'Mahabali'];
-  const rivals = ['shakti', 'shwaan', 'mahabali'];
+/** The player is shown as "You". No name is asked for or stored. */
+function buildSeats(avatarId: string): PlayerSeat[] {
   return [
-    { name: account.username, avatarId: account.avatarId, isHuman: true },
-    ...names.map((name, i) => ({ name, avatarId: rivals[i], isHuman: false })),
+    { name: 'You', avatarId, isHuman: true },
+    { name: 'Shakti', avatarId: 'shakti', isHuman: false },
+    { name: 'Shwaan', avatarId: 'shwaan', isHuman: false },
+    { name: 'Mahabali', avatarId: 'mahabali', isHuman: false },
   ];
 }
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
-  const [account, setAccount] = useState<Account | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [game, setGame] = useState<MatchState | null>(null);
 
-  // Restore the logged-in session on launch.
+  // On launch: load progress, then offer to continue any unsaved game.
   useEffect(() => {
     (async () => {
-      const user = await getSessionUser();
-      if (!user) {
-        setScreen('login');
-        return;
-      }
-      setAccount(user);
+      const loaded = await loadProfile();
+      setProfile(loaded);
       setScreen('home');
-      offerUnsavedGame(user);
+      offerUnsavedGame();
     })();
   }, []);
 
   /**
-   * If the player left a game in progress, ask whether to continue it from the
-   * same position. "Start new" discards the saved game.
+   * If a game was left in progress, ask whether to continue it from the same
+   * position. "Start new" discards the saved game.
    */
-  function offerUnsavedGame(user: Account) {
+  function offerUnsavedGame() {
     loadActiveGame().then((saved) => {
-      if (!saved || saved.owner !== user.username.toLowerCase()) return;
+      if (!saved) return;
       Alert.alert(
         'Unsaved game',
         'You have an unfinished game. Do you want to continue playing it from where you left off?',
         [
-          {
-            text: 'Start new',
-            style: 'destructive',
-            onPress: () => {
-              clearActiveGame();
-            },
-          },
+          { text: 'Start new', style: 'destructive', onPress: () => clearActiveGame() },
           {
             text: 'Continue',
             onPress: () => {
@@ -82,22 +71,16 @@ export default function App() {
     });
   }
 
-  function onLoggedIn(user: Account) {
-    setAccount(user);
-    setScreen('home');
-    offerUnsavedGame(user);
-  }
-
   /** Play Now: if an unsaved game exists, ask first; otherwise start fresh. */
   async function startMatch(rules: HouseRules) {
-    if (!account) return;
+    if (!profile) return;
     const saved = await loadActiveGame();
     const startFresh = () => {
       clearActiveGame();
-      setGame(createMatch(rules, buildSeats(account), Math.random));
+      setGame(createMatch(rules, buildSeats(profile.avatarId), Math.random));
       setScreen('game');
     };
-    if (saved && saved.owner === account.username.toLowerCase()) {
+    if (saved) {
       Alert.alert(
         'Unsaved game',
         'You have an unfinished game. Do you want to continue it instead of starting a new one?',
@@ -120,14 +103,14 @@ export default function App() {
 
   /** Leave the table and keep the match for later. */
   function suspendGame(match: MatchState) {
-    if (account) saveActiveGame(account.username, match);
+    saveActiveGame(match);
     setGame(null);
     setScreen('home');
   }
 
-  /** Match ended: record stats and history, then clear the saved game. */
+  /** Match ended: record progress and history, then clear the saved game. */
   async function finishGame(match: MatchState) {
-    if (!account) return;
+    if (!profile) return;
     const winners = matchWinners(match);
     const humanWon = winners.includes(HUMAN_SEAT);
     const tied = humanWon && winners.length > 1;
@@ -139,27 +122,26 @@ export default function App() {
       placed: tied ? 'tied' : humanWon ? 'won' : 'lost',
       difficulty,
     };
-    const updated: Account = {
-      ...account,
-      played: account.played + 1,
-      won: account.won + (humanWon ? 1 : 0),
-      totalPoints: account.totalPoints + match.totalPoints[HUMAN_SEAT],
-      stars: account.stars + (humanWon ? STARS_FOR[difficulty] : 0),
-      history: [...account.history, record].slice(-100),
+    const updated: Profile = {
+      ...profile,
+      played: profile.played + 1,
+      won: profile.won + (humanWon ? 1 : 0),
+      totalPoints: profile.totalPoints + match.totalPoints[HUMAN_SEAT],
+      stars: profile.stars + (humanWon ? STARS_FOR[difficulty] : 0),
+      history: [...profile.history, record].slice(-100),
     };
-    await updateAccount(updated);
+    await saveProfile(updated);
     await clearActiveGame();
-    setAccount(updated);
+    setProfile(updated);
     setGame(null);
     setScreen('home');
   }
 
-  async function onLogout() {
-    await logout();
-    await clearActiveGame();
-    setAccount(null);
-    setGame(null);
-    setScreen('login');
+  async function changeAvatar(avatarId: string) {
+    if (!profile) return;
+    const updated = { ...profile, avatarId };
+    await saveProfile(updated);
+    setProfile(updated);
   }
 
   return (
@@ -170,13 +152,11 @@ export default function App() {
           <ActivityIndicator color={colors.accent} size="large" />
         </View>
       )}
-      {screen === 'login' && <LoginScreen onLoggedIn={onLoggedIn} />}
-      {screen === 'home' && account && (
-        <HomeScreen account={account} onStart={startMatch} onLogout={onLogout} />
+      {screen === 'home' && profile && (
+        <HomeScreen profile={profile} onStart={startMatch} onChangeAvatar={changeAvatar} />
       )}
-      {screen === 'game' && account && game && (
+      {screen === 'game' && profile && game && (
         <GameScreen
-          account={account}
           initialMatch={game}
           onSuspend={suspendGame}
           onFinish={finishGame}

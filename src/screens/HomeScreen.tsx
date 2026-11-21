@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AVATARS, avatarById, isAvatarUnlocked } from '../avatars';
-import { Account } from '../storage';
+import { Profile } from '../storage';
 import { DEFAULT_RULES, Difficulty, HouseRules } from '../game/types';
 import { colors, radius } from '../theme';
 import { AvatarBadge } from '../components/AvatarBadge';
@@ -9,32 +9,36 @@ import { ChoiceRow } from '../components/ChoiceRow';
 import { RULES_TEXT } from '../rulesText';
 
 interface Props {
-  account: Account;
+  profile: Profile;
   onStart: (rules: HouseRules) => void;
-  onLogout: () => void;
+  onChangeAvatar: (avatarId: string) => void;
 }
 
-export function HomeScreen({ account, onStart, onLogout }: Props) {
+export function HomeScreen({ profile, onStart, onChangeAvatar }: Props) {
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showHouse, setShowHouse] = useState(false);
+  const [showAvatars, setShowAvatars] = useState(false);
   const [rules, setRules] = useState<HouseRules>(DEFAULT_RULES);
 
-  const avatar = avatarById(account.avatarId);
-  const winRate = account.played ? Math.round((account.won / account.played) * 100) : 0;
-  const nextLocked = AVATARS.find((a) => !isAvatarUnlocked(a, account.stars));
+  const avatar = avatarById(profile.avatarId);
+  const winRate = profile.played ? Math.round((profile.won / profile.played) * 100) : 0;
+  const nextLocked = AVATARS.find((a) => !isAvatarUnlocked(a, profile.stars));
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <AvatarBadge avatar={avatar} size={56} />
+        <TouchableOpacity
+          onPress={() => setShowAvatars(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Change avatar"
+        >
+          <AvatarBadge avatar={avatar} size={56} />
+        </TouchableOpacity>
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={styles.muted}>Welcome back</Text>
-          <Text style={styles.name}>{account.username}</Text>
+          <Text style={styles.name}>You</Text>
         </View>
-        <TouchableOpacity style={styles.pill} onPress={onLogout} accessibilityRole="button">
-          <Text style={styles.pillText}>Log out</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.hero}>
@@ -63,20 +67,20 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
 
       <Text style={styles.section}>Your record</Text>
       <View style={styles.statRow}>
-        <Stat label="Played" value={account.played} />
-        <Stat label="Won" value={account.won} />
+        <Stat label="Played" value={profile.played} />
+        <Stat label="Won" value={profile.won} />
         <Stat label="Win rate" value={`${winRate}%`} />
       </View>
 
       <View style={styles.pointsCard}>
         <Text style={styles.pointsLabel}>★  Total points</Text>
-        <Text style={styles.pointsValue}>{account.totalPoints}</Text>
+        <Text style={styles.pointsValue}>{profile.totalPoints}</Text>
       </View>
 
       <View style={styles.starsCard}>
         <View style={styles.starsTop}>
           <Text style={styles.starsLabel}>★  Stars</Text>
-          <Text style={styles.starsValue}>{account.stars}</Text>
+          <Text style={styles.starsValue}>{profile.stars}</Text>
         </View>
         {nextLocked ? (
           <View style={styles.nextRow}>
@@ -89,10 +93,10 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
       </View>
 
       <View style={styles.bottomRow}>
-        <TouchableOpacity style={styles.secondary} onPress={() => setShowRules(true)}>
+        <TouchableOpacity style={styles.secondary} onPress={() => setShowRules(true)} accessibilityRole="button">
           <Text style={styles.secondaryText}>Rules</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondary} onPress={() => setShowHistory(true)}>
+        <TouchableOpacity style={styles.secondary} onPress={() => setShowHistory(true)} accessibilityRole="button">
           <Text style={styles.secondaryText}>History</Text>
         </TouchableOpacity>
       </View>
@@ -142,9 +146,44 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
               setShowHouse(false);
               onStart(rules);
             }}
+            accessibilityRole="button"
           >
             <Text style={styles.startText}>▶  Start match</Text>
           </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Avatar picker */}
+      <Modal visible={showAvatars} transparent animationType="slide" onRequestClose={() => setShowAvatars(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setShowAvatars(false)} />
+        <View style={[styles.sheet, { maxHeight: '80%' }]}>
+          <View style={styles.handle} />
+          <Text style={styles.sheetTitle}>Pick your avatar</Text>
+          <Text style={styles.muted}>Win matches to earn stars. Stars unlock new avatars.</Text>
+          <ScrollView>
+            <View style={styles.avatarGrid}>
+              {AVATARS.map((a) => {
+                const unlocked = isAvatarUnlocked(a, profile.stars);
+                return (
+                  <View key={a.id} style={styles.avatarCell}>
+                    <AvatarBadge
+                      avatar={a}
+                      locked={!unlocked}
+                      selected={profile.avatarId === a.id}
+                      onPress={
+                        unlocked
+                          ? () => {
+                              onChangeAvatar(a.id);
+                              setShowAvatars(false);
+                            }
+                          : undefined
+                      }
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
       </Modal>
 
@@ -157,7 +196,7 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
           <ScrollView>
             <Text style={styles.body}>{RULES_TEXT}</Text>
           </ScrollView>
-          <TouchableOpacity style={styles.startButton} onPress={() => setShowRules(false)}>
+          <TouchableOpacity style={styles.startButton} onPress={() => setShowRules(false)} accessibilityRole="button">
             <Text style={styles.startText}>Got it</Text>
           </TouchableOpacity>
         </View>
@@ -170,10 +209,10 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
           <View style={styles.handle} />
           <Text style={styles.sheetTitle}>Match history</Text>
           <ScrollView>
-            {account.history.length === 0 ? (
+            {profile.history.length === 0 ? (
               <Text style={styles.body}>No finished matches yet.</Text>
             ) : (
-              account.history
+              profile.history
                 .slice()
                 .reverse()
                 .map((m, i) => (
@@ -188,7 +227,7 @@ export function HomeScreen({ account, onStart, onLogout }: Props) {
                 ))
             )}
           </ScrollView>
-          <TouchableOpacity style={styles.startButton} onPress={() => setShowHistory(false)}>
+          <TouchableOpacity style={styles.startButton} onPress={() => setShowHistory(false)} accessibilityRole="button">
             <Text style={styles.startText}>Close</Text>
           </TouchableOpacity>
         </View>
@@ -212,15 +251,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   muted: { color: colors.textMuted, fontSize: 13 },
   name: { color: colors.text, fontSize: 22, fontWeight: '800' },
-  pill: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: colors.surface,
-  },
-  pillText: { color: colors.text, fontWeight: '600' },
   hero: {
     backgroundColor: colors.tableGreen,
     borderRadius: radius.lg,
@@ -319,6 +349,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   startText: { color: colors.accentText, fontWeight: '800', fontSize: 17 },
+  avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 },
+  avatarCell: { width: '25%', alignItems: 'center', paddingVertical: 8 },
   historyRow: {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,

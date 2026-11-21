@@ -24,13 +24,12 @@ import {
   tickTimer,
 } from '../game/engine';
 import { Card, HAND_SIZE, HANDS_PER_ROUND, MatchState, SPARE_INDEX } from '../game/types';
-import { Account, saveActiveGame } from '../storage';
+import { saveActiveGame } from '../storage';
 import { colors, radius } from '../theme';
 import { AvatarBadge } from '../components/AvatarBadge';
 import { CardView } from '../components/CardView';
 
 interface Props {
-  account: Account;
   initialMatch: MatchState;
   /** Leave the table, keeping the match so it can be resumed later. */
   onSuspend: (match: MatchState) => void;
@@ -42,7 +41,7 @@ function handOf(layout: Card[], h: number): Card[] {
   return layout.slice(h * HAND_SIZE, h * HAND_SIZE + HAND_SIZE);
 }
 
-export function GameScreen({ account, initialMatch, onSuspend, onFinish }: Props) {
+export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
   const [match, setMatch] = useState<MatchState>(initialMatch);
   const [selected, setSelected] = useState<number | null>(null);
   const matchRef = useRef(match);
@@ -50,18 +49,18 @@ export function GameScreen({ account, initialMatch, onSuspend, onFinish }: Props
 
   // Save whenever the game meaningfully changes (not on every timer tick).
   useEffect(() => {
-    if (match.phase !== 'matchOver') saveActiveGame(account.username, match);
+    if (match.phase !== 'matchOver') saveActiveGame(match);
   }, [match.phase, match.round, match.revealed, match.layouts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save when the app goes to the background, so the timer position is kept too.
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state !== 'active' && matchRef.current.phase !== 'matchOver') {
-        saveActiveGame(account.username, matchRef.current);
+        saveActiveGame(matchRef.current);
       }
     });
     return () => sub.remove();
-  }, [account.username]);
+  }, []);
 
   // Arrange countdown.
   useEffect(() => {

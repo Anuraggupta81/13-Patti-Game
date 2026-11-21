@@ -33,24 +33,29 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
 | DB-01 | There is **no database and no server**. All data is stored on the device. | Confirmed | Brief |
-| DB-02 | Storage uses AsyncStorage on the device. Keys are: `patti.accounts`, `patti.session`, `patti.activeGame`. | Confirmed | Implementation |
-| DB-03 | A PIN is never stored in plain text. It is stored as a SHA-256 hash. | Confirmed | Security baseline |
-| DB-04 | Accounts are local to the phone. Another phone cannot see them. | Confirmed | DB-01 |
+| DB-02 | Storage uses AsyncStorage on the device. Keys are: `patti.profile` (game progress and avatar) and `patti.activeGame` (the saved match). | Confirmed | Implementation |
+| DB-03 | Retired: PIN storage removed. No PIN is asked for or stored. See PRIV-01. | Retired | Brief change |
+| DB-04 | Progress is local to the phone. Another phone cannot see it. | Confirmed | DB-01 |
 | DB-05 | The in-progress game is saved after every change to the arrangement, reveal, or round. The timer position is also saved when the app goes to the background. | Confirmed | Resume brief |
 | DB-06 | Storage errors never crash the app. Corrupt or unreadable data is treated as empty. | Assumed | Implementation |
-| DB-07 | Logging out clears the saved in-progress game for this device. | Assumed | Implementation; confirm |
+| DB-07 | Retired: there is no logout. See PRIV-02. | Retired | Brief change |
 | DB-08 | Match history keeps the last 100 matches per account. | Assumed | Implementation |
-| DB-09 | Clearing app data erases all accounts and saved games. No cloud backup exists. | Confirmed | DB-01 |
+| DB-09 | Clearing app data erases the progress and any saved game. No cloud backup exists. | Confirmed | DB-01 |
 
-## 3. Accounts and login
+## 3. No login and no personal details
 
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
-| AUTH-01 | A player signs in with a name (2 to 20 characters) and a 4-digit PIN. | Confirmed | Mock-up, "Who's playing today?" |
-| AUTH-02 | If the name is new, an account is created with that PIN and the chosen avatar. | Confirmed | Mock-up |
-| AUTH-03 | If the name exists, the PIN must match. Otherwise the app shows "Wrong PIN for this name." | Assumed | Implementation |
-| AUTH-04 | The session is remembered. The player is not asked to log in again until they log out. | Assumed | Implementation |
-| AUTH-05 | The PIN field accepts digits only and stops at 4 digits. | Confirmed | Implementation |
+| PRIV-01 | The app does not ask for a name, PIN, email, phone number, or any other personal detail. | Confirmed | Brief |
+| PRIV-02 | The app has no login and no sign-up. The game starts from the home screen. | Confirmed | Brief |
+| PRIV-03 | The player is shown as "You" everywhere in the app. | Confirmed | Implementation |
+| PRIV-04 | The avatar is a game preference and holds no personal detail. The player can change it from the home screen. | Assumed | Implementation |
+| PRIV-05 | The app does not collect device identifiers, location, contacts, or analytics. | Confirmed | SCOPE-03 |
+| AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
+| AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
+| AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |
+| AUTH-04 | Retired: session and logout removed. See PRIV-02. | Retired | Brief change |
+| AUTH-05 | Retired: PIN field removed. See PRIV-01. | Retired | Brief change |
 
 ## 4. Game rules
 
@@ -241,7 +246,7 @@ Feature: Resume an unsaved game
   So that I do not lose my hands or my points
 
   Background:
-    Given I am logged in as "Mav"
+    Given I am on the home screen
     And I am in round 2 of 5 at Hand 3 of 4
     And I have 4 points in total
 
@@ -254,7 +259,7 @@ Feature: Resume an unsaved game
   @RESUME-02 @RESUME-03
   Scenario: Continue the unsaved game after relaunch
     Given I closed the app during Hand 3
-    When I open the app and log in as "Mav"
+    When I open the app
     Then I see the message "Do you want to continue playing it from where you left off?"
     When I tap "Continue"
     Then I see round 2 of 5 at Hand 3 of 4
@@ -263,7 +268,7 @@ Feature: Resume an unsaved game
   @RESUME-03
   Scenario: Start a new game and discard the saved one
     Given I closed the app during Hand 3
-    When I open the app and log in as "Mav"
+    When I open the app
     And I tap "Start new"
     Then I see the House rules sheet
     And the saved game is removed
@@ -292,7 +297,7 @@ Feature: Resume an unsaved game
 | Q-03 | Is a Sequence (A-2-3) the lowest? Is K-A-2 a sequence? (Current: A-2-3 lowest, K-A-2 not a sequence.) | RANK-07, RANK-08 |
 | Q-04 | When two hands are fully equal, does the point go to both players or to none? (Current: both.) | SCORE-04 |
 | Q-05 | When the arrange timer runs out, should the app rearrange the cards or keep them as they are? (Current: keep.) | ARR-04 |
-| Q-06 | Does logging out delete the saved game? (Current: yes.) | DB-07 |
+| Q-06 | Should the player be able to reset their progress from inside the app? (Current: no reset option.) | DB-09 |
 | Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
 | Q-08 | What is the Android package name for release? | SCOPE-01 |
 
