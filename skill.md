@@ -41,6 +41,9 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | DB-07 | Retired: there is no logout. See PRIV-02. | Retired | Brief change |
 | DB-08 | Match history keeps the last 100 matches per account. | Assumed | Implementation |
 | DB-09 | Clearing app data erases the progress and any saved game. No cloud backup exists. | Confirmed | DB-01 |
+| AVT-01 | A chosen avatar is saved to the device profile and is shown again after the app restarts. | Confirmed | Brief |
+| AVT-02 | The new avatar is shown only after it is saved. If saving fails, the player sees "Could not save your avatar. Please try again." and the old avatar stays. | Confirmed | Implementation |
+| AVT-03 | On load, a saved avatar that does not exist or is still locked for the saved star count is replaced by the default avatar. | Confirmed | Implementation |
 
 ## 3. No login and no personal details
 

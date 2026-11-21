@@ -137,11 +137,14 @@ export default function App() {
     setScreen('home');
   }
 
-  async function changeAvatar(avatarId: string) {
-    if (!profile) return;
+  /** Shows the new avatar only once it is saved. If saving fails, the old one stays. */
+  async function changeAvatar(avatarId: string): Promise<boolean> {
+    if (!profile) return false;
     const updated = { ...profile, avatarId };
-    await saveProfile(updated);
-    setProfile(updated);
+    const saved = await saveProfile(updated);
+    if (saved) setProfile(updated);
+    else Alert.alert('Could not save', 'Could not save your avatar. Please try again.');
+    return saved;
   }
 
   return (
