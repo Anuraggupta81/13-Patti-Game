@@ -23,6 +23,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "thirteenpatti"
+    "scheme": "thirteenpatti",
+    "extra": {
+      "eas": {
+        "projectId": "aa45f0f5-7b2e-407f-a6bb-813a47dae0be"
+      }
+    },
+    "owner": "vgtechconsultingptyltd"
   }
 }
