@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { rankLabel, SUIT_SYMBOL, isRed } from '../game/cards';
+import { rankLabel, SUIT_SYMBOL } from '../game/cards';
 import { Card } from '../game/types';
+import { useDisplay, suitColour } from '../display';
 import { colors } from '../theme';
 
 interface Props {
@@ -13,7 +14,10 @@ interface Props {
   width?: number;
 }
 
-export function CardView({ card, faceDown, selected, dimmed, onPress, width = 64 }: Props) {
+export function CardView({ card, faceDown, selected, dimmed, onPress, width: baseWidth = 64 }: Props) {
+  const { fourColour, largeCards } = useDisplay();
+  // "Larger cards" setting makes every card 20% wider (review deck, slide 14).
+  const width = Math.round(baseWidth * (largeCards ? 1.2 : 1));
   const height = Math.round(width * 1.4);
   const body = faceDown || !card ? (
     <View style={[styles.card, styles.back, { width, height }]} />
@@ -26,10 +30,10 @@ export function CardView({ card, faceDown, selected, dimmed, onPress, width = 64
         dimmed && styles.dimmed,
       ]}
     >
-      <Text style={[styles.rank, { color: isRed(card) ? colors.red : '#111' }]}>
+      <Text style={[styles.rank, { color: suitColour(card, fourColour) }]}>
         {rankLabel(card.rank)}
       </Text>
-      <Text style={[styles.suit, { color: isRed(card) ? colors.red : '#111' }]}>
+      <Text style={[styles.suit, { color: suitColour(card, fourColour) }]}>
         {SUIT_SYMBOL[card.suit]}
       </Text>
     </View>

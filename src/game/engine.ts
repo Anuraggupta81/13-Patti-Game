@@ -1,4 +1,4 @@
-import { arrangeCards } from './arrange';
+import { arrangeCards, orderLayout } from './arrange';
 import { makeDeck, shuffle } from './cards';
 import { compareScores, scoreHand } from './evaluate';
 import {
@@ -21,7 +21,8 @@ export function dealRound(state: MatchState, random: Random = Math.random): Matc
   const deck = shuffle(makeDeck(), random);
   const layouts: Card[][] = state.seats.map((seat, i) => {
     const cards = deck.slice(i * CARDS_PER_PLAYER, (i + 1) * CARDS_PER_PLAYER);
-    return seat.isHuman ? cards : arrangeCards(cards, state.rules.difficulty, random);
+    // Computer hands also go highest first, the same rule as the player.
+    return seat.isHuman ? cards : orderLayout(arrangeCards(cards, state.rules.difficulty, random));
   });
   return {
     ...state,
@@ -76,7 +77,8 @@ export function setHumanLayout(state: MatchState, layout: Card[]): MatchState {
 
 /** Advance the arrange timer by `seconds`. Returns the state and whether time ran out. */
 export function tickTimer(state: MatchState, seconds: number): { state: MatchState; expired: boolean } {
-  if (state.phase !== 'arrange') return { state, expired: false };
+  // No timer (arrangeSeconds 0) never runs out.
+  if (state.phase !== 'arrange' || state.rules.arrangeSeconds === 0) return { state, expired: false };
   const secondsLeft = Math.max(0, state.secondsLeft - seconds);
   return { state: { ...state, secondsLeft }, expired: secondsLeft === 0 };
 }
@@ -84,7 +86,10 @@ export function tickTimer(state: MatchState, seconds: number): { state: MatchSta
 /** Lock the arrangement and start revealing hand by hand. */
 export function lockArrangement(state: MatchState): MatchState {
   if (state.phase !== 'arrange') return state;
-  return { ...state, phase: 'reveal', revealed: 0 };
+  // Rule: the highest group goes first and the lowest last.
+  const layouts = [...state.layouts];
+  layouts[HUMAN_SEAT] = orderLayout(state.layouts[HUMAN_SEAT]);
+  return { ...state, layouts, phase: 'reveal', revealed: 0 };
 }
 
 /** Which seats hold the best hand at index h (ties share the win). */
@@ -98,11 +103,8 @@ export function handWinnersFor(layouts: Card[][], h: number): number[] {
     if (cmp > 0) best = [i];
     else if (cmp === 0) best.push(i);
   }
-  if (best.length === 1) return best;
-  // Spare card breaks ties between equal hands.
-  const spareRank = (seat: number) => layouts[seat][SPARE_INDEX].rank;
-  const top = Math.max(...best.map(spareRank));
-  return best.filter((seat) => spareRank(seat) === top);
+  // Equal hands share the point. The spare card is not used in scoring.
+  return best;
 }
 
 /** Reveal the next hand and award its point(s). Finishes the round after the 4th hand. */

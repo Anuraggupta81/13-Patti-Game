@@ -11,7 +11,10 @@ interface Props {
   onExit?: () => void;
 }
 
-/** First-launch screen: the player confirms they are 18 or over. */
+/**
+ * First-launch screen: the player confirms they are 18 or over.
+ * An "under 18" answer is not stored, so the question is asked again next time.
+ */
 export function AgeGateScreen({ onOver18, onExit = () => BackHandler.exitApp() }: Props) {
   const [underAge, setUnderAge] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(CLOSE_AFTER_SECONDS);

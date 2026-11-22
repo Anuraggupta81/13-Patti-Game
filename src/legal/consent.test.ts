@@ -24,7 +24,7 @@ describe('legal acceptance is asked once per version', () => {
   });
 
   it('is needed again when the stored version is older', () => {
-    const old: Consent = { legalVersion: '0.9', legalAcceptedAt: NOW.toISOString(), over18ConfirmedAt: NOW.toISOString() };
+    const old: Consent = { legalVersion: '0.9', legalAcceptedAt: NOW.toISOString(), over18ConfirmedAt: NOW.toISOString(), underAgeAt: null };
     expect(needsLegalAcceptance(old)).toBe(true);
   });
 });

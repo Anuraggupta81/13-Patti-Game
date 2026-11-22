@@ -12,7 +12,12 @@ import {
 } from 'react-native';
 import { AVATARS, avatarById, isAvatarUnlocked } from '../avatars';
 import { avatarGridLayout } from '../layout';
-import { CHARACTER_NAME_MAX, checkCharacterName } from '../characterName';
+import {
+  CHARACTER_NAME_MAX,
+  checkCharacterName,
+  DEFAULT_NICKNAME,
+  nicknameOrDefault,
+} from '../characterName';
 import { colors, radius } from '../theme';
 import { AvatarBadge } from '../components/AvatarBadge';
 
@@ -31,13 +36,14 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
   const [avatarId, setAvatarId] = useState(initialAvatarId);
   const [error, setError] = useState<string | null>(null);
 
-  const check = checkCharacterName(name);
+  // The nickname is optional: a blank field uses the default name.
+  const check = checkCharacterName(nicknameOrDefault(name));
   const selected = avatarById(avatarId);
   const { width: windowWidth } = useWindowDimensions();
   const grid = avatarGridLayout(windowWidth);
 
   function save() {
-    const result = checkCharacterName(name);
+    const result = checkCharacterName(nicknameOrDefault(name));
     if (!result.ok) {
       setError(result.error);
       return;
@@ -56,7 +62,7 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
           {mode === 'first' ? "Who's playing today?" : 'Edit your character'}
         </Text>
 
-        <Text style={styles.label}>Character name</Text>
+        <Text style={styles.label}>Nickname (optional)</Text>
         <TextInput
           style={styles.input}
           placeholder="Type a name"
@@ -71,11 +77,11 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
           autoCorrect={false}
           returnKeyType="done"
           onSubmitEditing={save}
-          accessibilityLabel="Character name"
-          accessibilityHint={`Up to ${CHARACTER_NAME_MAX} characters. This name is shown at the table.`}
+          accessibilityLabel="Nickname, optional"
+          accessibilityHint={`Up to ${CHARACTER_NAME_MAX} characters. Leave blank to use Player. This name is shown at the table.`}
         />
         <Text style={styles.hint}>
-          {name.length}/{CHARACTER_NAME_MAX} characters. This is a game name, not a login.
+          {name.length}/{CHARACTER_NAME_MAX} characters. Stays on this phone. Leave blank to use {DEFAULT_NICKNAME}.
         </Text>
 
         <Text style={styles.label}>Pick your character</Text>
@@ -134,7 +140,8 @@ const styles = StyleSheet.create({
   label: { color: colors.text, fontWeight: '700', fontSize: 15, marginTop: 14, marginBottom: 8 },
   input: {
     backgroundColor: colors.surface,
-    borderColor: colors.border,
+    // 6.3:1 against the page (WCAG 1.4.11, slide 4).
+    borderColor: '#8A9A93',
     borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: 14,

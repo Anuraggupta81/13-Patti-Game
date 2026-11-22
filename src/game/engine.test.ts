@@ -1,6 +1,6 @@
 import { arrangeCards, layoutStrength } from './arrange';
 import { makeDeck } from './cards';
-import { CATEGORY, compareScores, scoreHand } from './evaluate';
+import { CATEGORY, compareScores, scoreHand, strengthValue } from './evaluate';
 import {
   createMatch,
   handWinnersFor,
@@ -74,7 +74,7 @@ describe('scoreHand', () => {
   });
 });
 
-describe('hand winners and spare tie-break', () => {
+describe('hand winners (spare card is not used)', () => {
   it('awards the hand to the strongest hand at that position', () => {
     const layouts: Card[][] = [
       [c(2, 'S'), c(9, 'S'), c(4, 'S'), c(5, 'S'), c(6, 'S'), c(7, 'S'), c(8, 'S'), c(9, 'H'), c(10, 'S'), c(3, 'D'), c(3, 'C'), c(3, 'H'), c(5, 'C')],
@@ -89,12 +89,12 @@ describe('hand winners and spare tie-break', () => {
     expect(handWinnersFor(layouts, 1)).toEqual([1]);
   });
 
-  it('uses the spare card to break an exact tie', () => {
+  it('shares the point when hands are exactly equal, and ignores the spare card', () => {
     const base = [c(9, 'S'), c(4, 'H'), c(2, 'D')];
     const layoutA: Card[] = [...base, c(9, 'C'), c(4, 'D'), c(2, 'S'), c(3, 'S'), c(5, 'S'), c(13, 'S'), c(7, 'H'), c(8, 'D'), c(10, 'C'), c(14, 'C')];
     const layoutB: Card[] = [...base.map((x) => ({ ...x })), c(9, 'D'), c(4, 'C'), c(2, 'H'), c(3, 'H'), c(5, 'H'), c(13, 'H'), c(7, 'C'), c(8, 'C'), c(10, 'D'), c(6, 'C')];
-    // Hand 0 is the same high-card hand for both; spare 14 (A) beats spare 6.
-    expect(handWinnersFor([layoutA, layoutB], 0)).toEqual([0]);
+    // Hand 0 is the same high-card hand for both. Spare A (14) vs spare 6 makes no difference.
+    expect(handWinnersFor([layoutA, layoutB], 0)).toEqual([0, 1]);
   });
 });
 
@@ -171,6 +171,32 @@ describe('match flow', () => {
     const suggested = arrangeCards(state.layouts[0], 'hard', seeded(4));
     const next = setHumanLayout(state, suggested);
     expect(next.layouts[0]).toEqual(suggested);
+  });
+});
+
+describe('highest group goes first (rule from the player)', () => {
+  it('orders the player hands from highest to lowest when locked', () => {
+    let state = createMatch(DEFAULT_RULES, SEATS, seeded(21));
+    // Put the weakest hand (high card) first on purpose.
+    const layout = state.layouts[0];
+    const weakestFirst = [...layout.slice(9, 12), ...layout.slice(0, 9), layout[12]];
+    state = setHumanLayout(state, weakestFirst);
+    state = lockArrangement(state);
+    const strengths = [0, 1, 2, 3].map((h) => {
+      const hand = state.layouts[0].slice(h * 3, h * 3 + 3);
+      return strengthValue(scoreHand(hand));
+    });
+    expect(strengths).toEqual([...strengths].sort((a, b) => b - a));
+  });
+
+  it('orders every computer player the same way when dealt', () => {
+    const state = createMatch(DEFAULT_RULES, SEATS, seeded(4));
+    for (let seat = 1; seat < 4; seat++) {
+      const strengths = [0, 1, 2, 3].map((h) =>
+        strengthValue(scoreHand(state.layouts[seat].slice(h * 3, h * 3 + 3))),
+      );
+      expect(strengths).toEqual([...strengths].sort((a, b) => b - a));
+    }
   });
 });
 

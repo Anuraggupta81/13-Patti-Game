@@ -9,7 +9,7 @@ SETUP
 Each round uses a standard 52-card deck. Each of the 4 players (you and 3 computer rivals) gets 13 cards.
 
 ARRANGE
-Split your 13 cards into four 3-card hands plus one spare card. You have a time limit to arrange them. Tap a card, then tap another to swap them. Suggest arranges your cards for you. Show cards locks your arrangement in.
+Split your 13 cards into four 3-card hands plus one spare card. The spare card is not used in scoring. You have a time limit to arrange them. Tap a card, then tap another to swap them. Suggest arranges your cards for you. Show cards locks your arrangement in.
 
 HAND RANKINGS (strongest first)
 1. Trail: three of a kind
@@ -20,7 +20,7 @@ HAND RANKINGS (strongest first)
 6. High card: otherwise, compared card by card from the top
 
 REVEAL
-Hands are revealed one at a time, from Hand 1 to Hand 4. The strongest hand in each position wins a point. If two hands are exactly equal, the spare card breaks the tie.
+Hands are revealed one at a time, from Hand 1 to Hand 4. The strongest hand in each position wins a point. If two hands are exactly equal, both players win the point.
 
 SWEEP BONUS
 If you win all 4 hands in a round, you get the sweep bonus set in House rules.

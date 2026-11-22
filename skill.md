@@ -54,7 +54,7 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | PRIV-03 | Retired: the player was shown as "You". The character name is shown instead (CHAR-03). | Retired | Brief change |
 | PRIV-04 | The avatar is a game preference and holds no personal detail. The player can change it from the home screen. | Assumed | Implementation |
 | PRIV-05 | The app does not collect device identifiers, location, contacts, or analytics. | Confirmed | SCOPE-03 |
-| CHAR-01 | On first launch, the player types a character name and picks a character before playing. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
+| CHAR-01 | On first launch, the player types an optional nickname and picks a character before playing. A blank nickname uses "Player" (review deck, slide 9 and 15). The nickname is saved on this phone only. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
 | CHAR-02 | "Save & Continue" stays disabled until the name is valid. An error message explains what is wrong. | Confirmed | Implementation |
 | CHAR-03 | The character name is shown at the table, on the scoreboard, and on the home screen. | Confirmed | Brief |
 | CHAR-04 | The player can edit the character name and avatar later from the home screen. Cancel keeps the old values. | Confirmed | Implementation |
@@ -77,6 +77,24 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
 | AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
 | AX-17 | Icon buttons (close, sound, gear) are at least 48 × 48 dp. | Confirmed | AX-06 |
+| AX-18 | The close button on the table is labelled "Leave match". A Help (?) button on the table opens the rules. | Confirmed | Review deck, slides 4, 5, 14 |
+| AX-19 | When a hand changes type while arranging, screen readers announce it: "Hand 1 is now a Pair." | Confirmed | Review deck, slides 5, 14 |
+| AX-20 | The input border is #8A9A93 (6.3:1, WCAG 1.4.11). | Confirmed | Review deck, slides 4, 13 |
+| AX-21 | Screen readers hear the spoken card name (for example "Queen of spades") and the hand strength ("Strength 3 of 5"). | Confirmed | Review deck, slide 14 |
+| TIMER-01 | "No timer" is the default. A timer of 45, 60, 90 or 120 seconds can be chosen in House rules. | Confirmed | Review deck, slides 4 and 9 |
+| TIMER-02 | With a timer, the player can pause and resume it by tapping the timer. Paused, the cards cannot be moved. | Confirmed | Review deck, slides 4 and 9 |
+| ARR-11 | Undo reverts the last swap or Suggest while arranging. | Confirmed | Review deck, slides 10 and 15 |
+| ARR-12 | A status line says what is selected: "Selected: Queen of spades. Tap another card to swap." | Confirmed | Review deck, slides 10 and 14 |
+| ARR-13 | Each hand shows a five-segment strength meter under its hand type. | Confirmed | Review deck, slides 10 and 15 |
+| RES-01 | Round and match results are sorted by standing, with positions, a "Leader" badge, and a plain summary ("You're 2nd, 2 points behind the leader."). | Confirmed | Review deck, slides 12 and 15 |
+| LOW-01 | Built 22 Nov (review deck, slide 15, Low). See DISP-01, DISP-02, FEED-01, FEED-02, RECAP-01 and HOME-01. | Confirmed | Review deck, slide 15 |
+| DISP-01 | Settings > Four-colour cards: spades black, hearts red, diamonds blue, clubs green. Off by default. | Confirmed | Review deck, slides 13 and 14 |
+| DISP-02 | Settings > Larger cards: all cards 20% larger on the table. Off by default. | Confirmed | Review deck, slides 13 and 14 |
+| FEED-01 | Settings > Vibration on swaps and wins: a light tap on each swap, and a success buzz when the player wins a hand. On by default. | Confirmed | Review deck, slide 14 |
+| FEED-02 | Settings > Auto-advance hands: after a hand is revealed, the next one is revealed after 2.5 seconds. Off by default. The Next hand button still works. | Confirmed | Review deck, slides 11 and 14 |
+| RECAP-01 | The round result shows a personal recap ("You won 2 of 4 hands this round.") and one tip. | Confirmed | Review deck, slides 12 and 15 |
+| HOME-01 | The home screen shows the last-used house rules in one line ("5 rounds · No timer · Sweep +3 · Medium"). | Confirmed | Review deck, slide 15 |
+| SET-02 | Settings lists Sound, Four-colour cards, Larger cards, Vibration and Auto-advance, each as a labelled switch. | Confirmed | Review deck, slide 14 |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |
@@ -95,9 +113,9 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | LEGAL-04 | The confirmation is asked again only when `LEGAL_VERSION` changes. | Assumed | Implementation |
 | LEGAL-05 | The Privacy Notice and Terms of Use can be read again from the home screen at any time. | Confirmed | Documents (Settings menu reference) |
 | AGE-01 | After the legal confirmation, the second screen asks "Are you 18 or over?" with two buttons: "I am Over 18" and "No, I am under 18". | Confirmed | Brief |
-| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. The question is not asked again. | Confirmed | Brief |
+| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. It is saved on the device, so the question is not asked again on later launches. | Confirmed | Brief |
 | AGE-03 | Choosing "No, I am under 18" shows "Minors are not allowed to play the game." and a countdown. The app closes after 3 seconds. | Confirmed | Brief |
-| AGE-04 | The under-18 answer is not stored. The question is asked again on the next launch. | Assumed | Implementation |
+| AGE-04 | An "under 18" answer is not stored. The app shows the minors message and closes after 3 seconds, and the question is asked again the next time the app opens. Changed 23 Nov: the earlier permanent block is removed. | Confirmed | Player request, 23 Nov |
 | ORDER-01 | First-launch order: Privacy Notice and Terms, then the age check, then character setup, then home. Each step is shown only if it has not been completed. | Assumed | Brief (order implied); confirm |
 
 ## 4. Game rules
@@ -122,9 +140,10 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | ARR-04 | When the timer reaches zero, the player's current arrangement is locked as it is. It is not rearranged automatically. | Assumed | Implementation; confirm |
 | ARR-05 | "Suggest" rearranges the player's cards into the strongest hands the app can find. It does not lock them. | Confirmed | Mock-up |
 | ARR-10 | After Suggest, the hands are shown from strongest (Hand 1) to weakest (Hand 4). Inside each hand the cards go from highest to lowest. The spare stays last. | Confirmed | Brief 22 Nov |
+| ORDER-02 | Each side puts its groups in order, highest first and lowest last. The player is ordered when cards are locked (Show cards or timeout). Computer hands are ordered when dealt. Hands are compared position by position. | Confirmed | Player rules text, 22 Nov |
 | ARR-06 | "Show cards" locks the arrangement and starts the reveal. | Confirmed | Mock-up |
 | ARR-07 | Each hand shows its category label (for example "Pair" or "High Card") while arranging. | Confirmed | Mock-up |
-| ARR-08 | The spare card is shown with the note "Breaks ties". | Confirmed | Mock-up |
+| ARR-08 | The spare card is shown last, labelled "Not used in scoring". It is not used in scoring. | Confirmed | Player decision, 22 Nov |
 | ARR-09 | Computer players arrange their cards automatically when the round is dealt. | Confirmed | Implementation |
 
 ### 4.3 Hand ranking
@@ -133,18 +152,18 @@ Strongest first. Each category is listed with its tie-break rule.
 
 | ID | Category | Meaning | Tie-break | Status |
 |----|----------|---------|-----------|--------|
-| RANK-01 | Trail | Three cards of the same rank | Rank | Assumed |
-| RANK-02 | Pure sequence | Three cards in order, all the same suit | Top card | Assumed |
-| RANK-03 | Sequence | Three cards in order, mixed suits | Top card | Assumed |
-| RANK-04 | Color | Three cards of the same suit, not in order | Highest card, then next | Assumed |
-| RANK-05 | Pair | Two cards of the same rank | Pair rank, then the odd card | Assumed |
-| RANK-06 | High card | Anything else | Highest card, then next | Assumed |
+| RANK-01 | Trail | Three cards of the same rank | Rank | Confirmed | Player rules text, 22 Nov |
+| RANK-02 | Pure sequence | Three cards in order, all the same suit | Top card | Confirmed | Player rules text, 22 Nov |
+| RANK-03 | Sequence | Three cards in order, mixed suits | Top card | Confirmed | Player rules text, 22 Nov |
+| RANK-04 | Color | Three cards of the same suit, not in order | Highest card, then next | Confirmed | Player rules text, 22 Nov |
+| RANK-05 | Pair | Two cards of the same rank | Pair rank, then the odd card | Confirmed | Player rules text, 22 Nov |
+| RANK-06 | High card | Anything else | Highest card, then next | Confirmed | Player rules text, 22 Nov |
 
 | ID | Rule | Status |
 |----|------|--------|
-| RANK-07 | Ace is high. Q-K-A is the highest sequence. | Assumed |
-| RANK-08 | A-2-3 is the lowest sequence. K-A-2 is not a sequence. | Assumed |
-| RANK-09 | Hands are compared by category first, then by tie-break. | Assumed |
+| RANK-07 | Ace is high. Q-K-A is the highest sequence. | Confirmed | Player rules text, 22 Nov |
+| RANK-08 | A-2-3 is the lowest sequence. K-A-2 is not a sequence. | Confirmed | Player rules text, 22 Nov |
+| RANK-09 | Hands are compared by category first, then by tie-break. | Confirmed | Player rules text, 22 Nov |
 
 ### 4.4 Reveal and scoring
 
@@ -152,8 +171,8 @@ Strongest first. Each category is listed with its tie-break rule.
 |----|------|--------|--------|
 | SCORE-01 | Hands are revealed one at a time, from Hand 1 to Hand 4. | Confirmed | Mock-up |
 | SCORE-02 | In each hand position, the strongest hand wins 1 point. | Confirmed | Mock-up (round summary) |
-| SCORE-03 | If two hands are equal in rank and tie-break, the spare card breaks the tie. The higher spare wins. | Confirmed | Mock-up |
-| SCORE-04 | If two hands are still equal after the spare, both players win the point. | Assumed | Implementation |
+| SCORE-03 | Retired 22 Nov: the spare card no longer breaks ties. Equal hands share the point (SCORE-04). | Retired | Player decision, 22 Nov |
+| SCORE-04 | If two hands are exactly equal, both players win the point. | Confirmed | Player decision, 22 Nov |
 | SCORE-05 | A player who wins all four hands in a round scores a **sweep**. They get the sweep bonus from house rules. | Confirmed | Mock-up |
 | SCORE-06 | The sweep bonus is Off, +3, or +5. The default is +3. | Confirmed | Mock-up |
 | SCORE-07 | The round summary shows each player's points for the round and their total. | Confirmed | Mock-up |
@@ -336,18 +355,18 @@ Feature: Resume an unsaved game
 
 | # | Question | Affects |
 |---|----------|---------|
-| Q-01 | Confirm the official rules from the BGG thread or wikiHow page. Both were blocked during the build. | GAME-*, RANK-*, SCORE-* |
-| Q-02 | Does a Trail rank above a Pure sequence? (Current: yes.) | RANK-01, RANK-02 |
-| Q-03 | Is a Sequence (A-2-3) the lowest? Is K-A-2 a sequence? (Current: A-2-3 lowest, K-A-2 not a sequence.) | RANK-07, RANK-08 |
-| Q-04 | When two hands are fully equal, does the point go to both players or to none? (Current: both.) | SCORE-04 |
-| Q-05 | When the arrange timer runs out, should the app rearrange the cards or keep them as they are? (Current: keep.) | ARR-04 |
+| Q-01 | Resolved 22 Nov: the player supplied the rules text. Hand ranking, sequences, pairs, tie-breaks and the highest-group-first rule match it (ORDER-02). Q-02 and Q-03 agree with it. | RANK-*, ORDER-02 |
+| Q-02 | Decided 22 Nov: a Trail ranks above a Pure sequence (the standard order). Kept as built. | RANK-01, RANK-02 |
+| Q-03 | Decided 22 Nov: A-2-3 is the lowest sequence and K-A-2 is not a sequence. Kept as built. | RANK-07, RANK-08 |
+| Q-04 | Decided 22 Nov: when two hands are fully equal, both players get the point. Kept as built. | SCORE-04 |
+| Q-05 | Decided 22 Nov: when the arrange timer runs out, the cards stay as they are. Kept as built. | ARR-04 |
 | Q-06 | Resolved 22 Nov: the player can reset progress from Settings (RESET-01 to RESET-04). | DB-09 |
-| Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
-| Q-08 | What is the Android package name for release? | SCOPE-01 |
-| Q-09 | The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
-| Q-10 | The documents say the game is only for Australia and India. The app does not check location. Should it? | Terms s.2 |
-| Q-11 | Is the first-launch order (legal, then age, then setup) right? | ORDER-01 |
-| Q-12 | Should the under-18 answer be remembered on the device, so the player is blocked on the next launch too? (Current: no.) | AGE-04 |
+| Q-07 | Decided 22 Nov: avatars unlock at 3, 6, 9, 12, 15 and 18 stars, as the mock-up suggests. Kept as built. | STAR-03 |
+| Q-08 | Resolved 22 Nov: Android package name is com.vgtech.thirteenpatti. | SCOPE-01 |
+| Q-09 | OPEN, needs your decision. The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
+| Q-10 | Resolved 22 Nov: no location check. Players confirm their age and accept the Terms instead. The Terms text about Australia and India is unchanged. | Terms s.2 |
+| Q-11 | Decided 22 Nov: the first-launch order is Privacy Notice and Terms, then age check, then character setup. Kept as built. | ORDER-01 |
+| Q-12 | Changed 23 Nov: an "under 18" answer is not remembered. The question is asked again on each launch (AGE-04). An "over 18" answer is remembered. | AGE-02, AGE-04 |
 
 ## 11. Glossary
 
@@ -365,6 +384,7 @@ Feature: Resume an unsaved game
 
 ## 12. Sources
 
+- Rules (final, supplied by the player 22 Nov): C:UserssvishDesktop patti game patti rules.txt. Matches the pasted rules and includes the highest-group-first rule (ORDER-02). Spare card: not mentioned in the file; kept as in the mock-ups.
 - Rules reference: https://www.wikihow.com/Play-the-Card-Game-13 (could not be fetched automatically; check it manually)
 - Rules reference: https://boardgamegeek.com/thread/911702/our-thirteen-rules (returned HTTP 403 during the build)
 - Design mock-ups: `C:\Users\svish\Projects\13 patti\screens` (7 screens)

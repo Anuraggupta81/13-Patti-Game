@@ -48,12 +48,14 @@ export function AvatarBadge({
           numberOfLines={2}
           textBreakStrategy="simple"
         >
-          {locked ? '???' : avatar.name}
+          {locked ? `${avatar.name} · ${avatar.unlockStars} stars` : avatar.name}
         </Text>
       ) : null}
     </View>
   );
-  const label = locked ? 'Locked avatar' : `${avatar.name} avatar`;
+  const label = locked
+    ? `${avatar.name}, locked, unlocks at ${avatar.unlockStars} stars`
+    : `${avatar.name} avatar`;
   if (!onPress) return <View accessible accessibilityLabel={label}>{body}</View>;
   return (
     <TouchableOpacity

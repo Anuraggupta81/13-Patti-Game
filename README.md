@@ -11,7 +11,7 @@ Play against 3 computer rivals. No login, no personal details, and nothing is se
 - **Home**: Play Now, record, Rules, and History.
 - **House rules**: rounds (3/5/7/10), arrange time (45/60/90/120s), sweep bonus (off/+3/+5), computer difficulty (easy/medium/hard).
 - **Table**: arrange 13 cards into four 3-card hands plus a spare. Tap a card, then another to swap. Suggest arranges for you. The timer locks your arrangement when it runs out.
-- **Reveal**: hands are revealed one at a time, with a point to the strongest hand in each position. The spare breaks ties.
+- **Reveal**: hands are revealed one at a time, with a point to the strongest hand in each position. Equal hands share the point. The spare card is not used.
 - **Resume**: the game autosaves. Closing it (✕, Android back, or backgrounding the app) keeps the exact position. On the next launch, or when you press Play Now, the app asks whether to **continue the unsaved game** or **start a new one**.
 
 ## Project layout
@@ -58,7 +58,7 @@ The engine implements the variant shown in the design mock-ups:
 
 - 52-card deck, 4 players, 13 cards each, arranged into four 3-card hands and one spare.
 - Hand ranking, strongest first: Trail, Pure sequence, Sequence, Color, Pair, High card. A-2-3 is the lowest sequence and Q-K-A the highest.
-- Each hand position is revealed in turn. The strongest hand wins one point. Equal hands are broken by the spare card.
+- Each hand position is revealed in turn. The strongest hand wins one point. Equal hands share the point. The spare card is not used in scoring.
 - Winning all four hands is a sweep and earns the sweep bonus.
 - The player with the most total points after the chosen number of rounds wins the match.
 - Stars for a win: Easy 1, Medium 2, Hard 3. Stars unlock avatars.

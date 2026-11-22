@@ -1,11 +1,23 @@
 import React from 'react';
-import { Modal, Pressable, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { colors, radius } from '../theme';
+
+/** Display and feedback switches (review deck, slide 14). */
+export const PREFS = [
+  { key: 'fourColour', label: 'Four-colour cards' },
+  { key: 'largeCards', label: 'Larger cards' },
+  { key: 'hapticsOn', label: 'Vibration on swaps and wins' },
+  { key: 'autoAdvance', label: 'Auto-advance hands' },
+] as const;
+
+export type PrefKey = (typeof PREFS)[number]['key'];
 
 interface Props {
   visible: boolean;
   soundOn: boolean;
   onToggleSound: (on: boolean) => void;
+  values: Record<PrefKey, boolean>;
+  onPref: (key: PrefKey, on: boolean) => void;
   onEditCharacter: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
@@ -18,6 +30,8 @@ export function SettingsSheet({
   visible,
   soundOn,
   onToggleSound,
+  values,
+  onPref,
   onEditCharacter,
   onOpenPrivacy,
   onOpenTerms,
@@ -27,7 +41,7 @@ export function SettingsSheet({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close settings" />
-      <View style={styles.sheet}>
+      <ScrollView style={[styles.sheet, { maxHeight: '90%' }]}>
         <View style={styles.handle} />
         <Text style={styles.title} accessibilityRole="header">
           Settings
@@ -45,6 +59,20 @@ export function SettingsSheet({
             accessibilityState={{ checked: soundOn }}
           />
         </View>
+        {PREFS.map((p) => (
+          <View key={p.key} style={styles.row}>
+            <Text style={styles.rowLabel}>{p.label}</Text>
+            <Switch
+              value={values[p.key]}
+              onValueChange={(on) => onPref(p.key, on)}
+              trackColor={{ false: colors.border, true: colors.accent }}
+              thumbColor="#FFFFFF"
+              accessibilityRole="switch"
+              accessibilityLabel={p.label}
+              accessibilityState={{ checked: values[p.key] }}
+            />
+          </View>
+        ))}
 
         <Item label="Edit character" onPress={onEditCharacter} />
         <Item label="Privacy Notice" onPress={onOpenPrivacy} />
@@ -62,7 +90,7 @@ export function SettingsSheet({
         <TouchableOpacity style={styles.close} onPress={onClose} accessibilityRole="button">
           <Text style={styles.closeText}>Close</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }
