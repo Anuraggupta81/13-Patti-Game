@@ -54,5 +54,5 @@ const styles = StyleSheet.create({
   wrap: { alignItems: 'center' },
   circle: { alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.border },
   selected: { borderColor: colors.accent, borderWidth: 3 },
-  name: { color: colors.textMuted, fontSize: 12, marginTop: 4, maxWidth: 80 },
+  name: { color: colors.textMuted, fontSize: 14, marginTop: 4, maxWidth: 80 },
 });

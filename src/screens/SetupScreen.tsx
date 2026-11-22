@@ -124,7 +124,7 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   container: { padding: 16, paddingTop: 16, paddingBottom: 32 },
-  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 13 },
+  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 28, fontWeight: '800', marginTop: 6, marginBottom: 12 },
   label: { color: colors.text, fontWeight: '700', fontSize: 15, marginTop: 14, marginBottom: 8 },
   input: {
@@ -137,10 +137,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
   },
-  hint: { color: colors.textMuted, fontSize: 13, marginTop: 8, lineHeight: 18 },
+  hint: { color: colors.textMuted, fontSize: 14, marginTop: 8, lineHeight: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 },
   avatarCell: { width: '25%', alignItems: 'center', paddingVertical: 6 },
-  error: { color: colors.red, marginTop: 12, fontWeight: '600' },
+  error: { color: colors.error, marginTop: 12, fontWeight: '600' },
   primary: {
     marginTop: 20,
     backgroundColor: colors.accent,

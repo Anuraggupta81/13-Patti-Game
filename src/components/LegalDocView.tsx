@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   body: { paddingHorizontal: 16, paddingBottom: 40 },
   title: { color: colors.text, fontSize: 26, fontWeight: '800' },
   subtitle: { color: colors.accent, fontWeight: '700', marginTop: 2 },
-  meta: { color: colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: 12 },
+  meta: { color: colors.textMuted, fontSize: 14, marginTop: 4, marginBottom: 12 },
   section: { marginTop: 16 },
   heading: { color: colors.text, fontSize: 17, fontWeight: '800', marginBottom: 6 },
   para: { color: colors.text, fontSize: 15, lineHeight: 22, marginTop: 6 },

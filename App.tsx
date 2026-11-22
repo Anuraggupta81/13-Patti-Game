@@ -29,6 +29,7 @@ import { SetupScreen } from './src/screens/SetupScreen';
 import { LegalConsentScreen } from './src/screens/LegalConsentScreen';
 import { AgeGateScreen } from './src/screens/AgeGateScreen';
 import { colors } from './src/theme';
+import { RIVALS } from './src/avatars';
 
 type Screen = 'loading' | 'legal' | 'age' | 'setup' | 'home' | 'game';
 
@@ -39,9 +40,7 @@ const STARS_FOR: Record<Difficulty, number> = { easy: 1, medium: 2, hard: 3 };
 function buildSeats(profile: Profile): PlayerSeat[] {
   return [
     { name: profile.characterName, avatarId: profile.avatarId, isHuman: true },
-    { name: 'Shakti', avatarId: 'shakti', isHuman: false },
-    { name: 'Shwaan', avatarId: 'shwaan', isHuman: false },
-    { name: 'Mahabali', avatarId: 'mahabali', isHuman: false },
+    ...RIVALS.map((r) => ({ name: r.name, avatarId: r.avatarId, isHuman: false })),
   ];
 }
 
@@ -193,6 +192,15 @@ export default function App() {
     setScreen('home');
   }
 
+  /** Sound on or off. Saved to the device profile. */
+  async function setSound(on: boolean) {
+    if (!profile) return;
+    const updated: Profile = { ...profile, soundOn: on };
+    const saved = await saveProfile(updated);
+    if (saved) setProfile(updated);
+    else Alert.alert('Could not save', 'Could not save your sound setting. Please try again.');
+  }
+
   /** Saves the character name and avatar. The new values show only once saved. */
   async function saveCharacter(characterName: string, avatarId: string) {
     if (!profile) return;
@@ -231,6 +239,8 @@ export default function App() {
         {screen === 'home' && profile && (
           <HomeScreen
             profile={profile}
+            soundOn={profile.soundOn}
+            onToggleSound={setSound}
             onStart={startMatch}
             onEditCharacter={() => {
               setSetupMode('edit');
@@ -239,7 +249,13 @@ export default function App() {
           />
         )}
         {screen === 'game' && profile && game && (
-          <GameScreen initialMatch={game} onSuspend={suspendGame} onFinish={finishGame} />
+          <GameScreen
+            initialMatch={game}
+            soundOn={profile.soundOn}
+            onToggleSound={setSound}
+            onSuspend={suspendGame}
+            onFinish={finishGame}
+          />
         )}
       </SafeAreaView>
     </SafeAreaProvider>

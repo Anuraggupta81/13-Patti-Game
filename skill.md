@@ -62,6 +62,15 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | CHAR-06 | Only unlocked characters can be picked. Locked characters show a lock and "???". | Confirmed | STAR-04 |
 | LAYOUT-01 | Screens respect the phone's status bar and navigation bar. No button sits under the system bars. | Confirmed | Brief (screenshot 22 Nov) |
 | LAYOUT-02 | Avatars do not show a second name where the screen already shows one. | Confirmed | Brief (screenshot 22 Nov) |
+| CHAR-07 | Characters and rivals use generic English names and free artwork (standard emoji). No name or character from an existing film, comic, cartoon, or brand is used. Rivals: Maya, Ravi, Kabir. Characters: Fox, Panda, Lion, Dragon, Tiger, King, Unicorn, and locked ones (Duck, Elephant, Owl, Bird, Flame, Storm). | Confirmed | Brief 22 Nov |
+| CHAR-08 | Saved character ids from the earlier names (for example "billu") map to the new ids, so no player loses their character. | Confirmed | Implementation |
+| SET-01 | The gear button on the home screen opens Settings: Sound, Edit character, Privacy Notice, Terms of Use. | Confirmed | Mock-ups (gear icon) |
+| SND-01 | A speaker button on the table and the Sound switch in Settings turn sound on or off. The choice is saved on the device. Defaults to on. | Confirmed | Mock-ups (speaker icon) |
+| SND-02 | No sound files are bundled yet. The switch stores the setting only. | Confirmed | Implementation |
+| AX-14 | Screen readers announce each hand result ("Hand 2 of 4. Ravi wins this hand." or the tied names), the round end ("Round 2 done."), the match result, and card swaps ("Cards swapped."). | Confirmed | Implementation |
+| AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
+| AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
+| AX-17 | Icon buttons (close, sound, gear) are at least 48 × 48 dp. | Confirmed | AX-06 |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |
@@ -92,7 +101,7 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
 | GAME-01 | Each round uses a standard 52-card deck, shuffled. | Confirmed | Brief |
-| GAME-02 | Four players sit at the table: "You" and three rivals (Shakti, Shwaan, Mahabali). | Confirmed | Mock-ups |
+| GAME-02 | Four players sit at the table: the player's character and three rivals (Maya, Ravi, Kabir). | Confirmed | Mock-ups; names changed 22 Nov (CHAR-07) |
 | GAME-03 | Each player is dealt 13 cards. | Confirmed | Brief |
 | GAME-04 | Each player arranges their 13 cards into four 3-card hands and one spare card. | Confirmed | Mock-ups |
 | GAME-05 | The number of rounds is 3, 5, 7, or 10. The default is 5. | Confirmed | Mock-up (house rules) |
@@ -209,7 +218,7 @@ contrast, reduced motion, and switch or keyboard access.
 | AX-07 | Text grows with the system font size. No text is cut off at 200% scale. | Confirmed |
 | AX-08 | Focus order follows the visual order: top bar, scoreboard, hands, actions. | Confirmed |
 | AX-09 | Every screen can be used without a touch screen (switch access or TalkBack gestures). | Confirmed |
-| AX-10 | Timer changes are announced at 30, 10, and 5 seconds left. The timer is never the only way to finish arranging. | Assumed |
+| AX-10 | Timer changes are announced at 30, 10, and 5 seconds left ("30 seconds left to arrange."). The timer is never the only way to finish arranging. | Confirmed |
 | AX-11 | Motion is kept small. Animations are skipped when "remove animations" is on. | Assumed |
 | AX-12 | Results (round, match) are announced when they appear. | Confirmed |
 | AX-13 | Decorative images are hidden from screen readers. | Confirmed |
@@ -304,8 +313,8 @@ Feature: Resume an unsaved game
   @AX-12
   Scenario: The result of a hand is announced to screen readers
     Given TalkBack is on
-    When Hand 3 is revealed and "Shwaan" wins it
-    Then TalkBack announces "Hand 3 of 4. Shwaan wins this hand."
+    When Hand 3 is revealed and "Ravi" wins it
+    Then TalkBack announces "Hand 3 of 4. Ravi wins this hand."
 ```
 
 ## 9. Definition of Done for a game feature

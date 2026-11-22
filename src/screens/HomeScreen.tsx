@@ -8,15 +8,19 @@ import { AvatarBadge } from '../components/AvatarBadge';
 import { ChoiceRow } from '../components/ChoiceRow';
 import { RULES_TEXT } from '../rulesText';
 import { LegalDocView } from '../components/LegalDocView';
+import { SettingsSheet } from '../components/SettingsSheet';
 import { LegalDocument, PRIVACY_NOTICE, TERMS_OF_USE } from '../legal/content';
 
 interface Props {
   profile: Profile;
   onStart: (rules: HouseRules) => void;
   onEditCharacter: () => void;
+  soundOn: boolean;
+  onToggleSound: (on: boolean) => void;
 }
 
-export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
+export function HomeScreen({ profile, onStart, onEditCharacter, soundOn, onToggleSound }: Props) {
+  const [showSettings, setShowSettings] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showHouse, setShowHouse] = useState(false);
@@ -45,6 +49,14 @@ export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
         </View>
         <TouchableOpacity style={styles.pill} onPress={onEditCharacter} accessibilityRole="button">
           <Text style={styles.pillText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.gear}
+          onPress={() => setShowSettings(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+        >
+          <Text style={styles.gearText}>⚙️</Text>
         </TouchableOpacity>
       </View>
 
@@ -127,6 +139,25 @@ export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
         </TouchableOpacity>
       </View>
       <LegalDocView doc={legalDoc} onClose={() => setLegalDoc(null)} />
+
+      <SettingsSheet
+        visible={showSettings}
+        soundOn={soundOn}
+        onToggleSound={onToggleSound}
+        onClose={() => setShowSettings(false)}
+        onEditCharacter={() => {
+          setShowSettings(false);
+          onEditCharacter();
+        }}
+        onOpenPrivacy={() => {
+          setShowSettings(false);
+          setLegalDoc(PRIVACY_NOTICE);
+        }}
+        onOpenTerms={() => {
+          setShowSettings(false);
+          setLegalDoc(TERMS_OF_USE);
+        }}
+      />
 
       {/* House rules sheet */}
       <Modal visible={showHouse} transparent animationType="slide" onRequestClose={() => setShowHouse(false)}>
@@ -213,7 +244,7 @@ export function HomeScreen({ profile, onStart, onEditCharacter }: Props) {
                     <Text style={styles.historyText}>
                       {new Date(m.finishedAt).toLocaleDateString()} · {m.rounds} rounds · {m.difficulty}
                     </Text>
-                    <Text style={[styles.historyResult, { color: m.placed === 'won' ? colors.gain : colors.red }]}>
+                    <Text style={[styles.historyResult, { color: m.placed === 'won' ? colors.gain : colors.error }]}>
                       {m.placed === 'won' ? 'Won' : m.placed === 'tied' ? 'Tied' : 'Lost'} · {m.points} pts
                     </Text>
                   </View>
@@ -242,7 +273,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   container: { padding: 16, paddingTop: 16, paddingBottom: 32 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  muted: { color: colors.textMuted, fontSize: 13 },
+  muted: { color: colors.textMuted, fontSize: 14 },
   name: { color: colors.text, fontSize: 22, fontWeight: '800' },
   pill: {
     borderColor: colors.border,
@@ -253,6 +284,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   pillText: { color: colors.text, fontWeight: '600' },
+  gear: {
+    marginLeft: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  gearText: { fontSize: 20 },
   hero: {
     backgroundColor: colors.tableGreen,
     borderRadius: radius.lg,

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AVATARS, isAvatarUnlocked } from './avatars';
+import { avatarById, DEFAULT_AVATAR_ID, isAvatarUnlocked, resolveAvatarId } from './avatars';
 import { checkCharacterName } from './characterName';
 import type { Consent } from './legal/consent';
 import { MatchState } from './game/types';
@@ -21,6 +21,8 @@ export interface Profile {
   /** The character's game name. Empty until the player sets it on first launch. */
   characterName: string;
   avatarId: string;
+  /** Sound effects on or off. Defaults to on. */
+  soundOn: boolean;
   played: number;
   won: number;
   totalPoints: number;
@@ -57,7 +59,8 @@ export async function saveConsent(consent: Consent): Promise<boolean> {
 
 export const DEFAULT_PROFILE: Profile = {
   characterName: '',
-  avatarId: 'billu',
+  avatarId: DEFAULT_AVATAR_ID,
+  soundOn: true,
   played: 0,
   won: 0,
   totalPoints: 0,
@@ -108,14 +111,15 @@ export function sanitizeProfile(stored: unknown): Profile {
   const profile: Profile = {
     characterName: checked && checked.ok ? checked.name : '',
     avatarId: DEFAULT_PROFILE.avatarId,
+    soundOn: typeof s.soundOn === 'boolean' ? s.soundOn : true,
     played: count(s.played),
     won: count(s.won),
     totalPoints: count(s.totalPoints),
     stars: count(s.stars),
     history: Array.isArray(s.history) ? (s.history as MatchRecord[]) : [],
   };
-  const avatar = AVATARS.find((a) => a.id === s.avatarId);
-  if (avatar && isAvatarUnlocked(avatar, profile.stars)) profile.avatarId = avatar.id;
+  const id = resolveAvatarId(s.avatarId);
+  if (id && isAvatarUnlocked(avatarById(id), profile.stars)) profile.avatarId = id;
   return profile;
 }
 

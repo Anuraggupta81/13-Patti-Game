@@ -74,10 +74,10 @@ export function AgeGateScreen({ onOver18, onExit = () => BackHandler.exitApp() }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg, padding: 24, justifyContent: 'center' },
-  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 13 },
+  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 30, fontWeight: '800', marginTop: 8 },
   body: { color: colors.textMuted, fontSize: 16, lineHeight: 23, marginTop: 12, marginBottom: 24 },
-  warning: { color: colors.red, fontSize: 22, fontWeight: '800', marginTop: 12, lineHeight: 30 },
+  warning: { color: colors.error, fontSize: 22, fontWeight: '800', marginTop: 12, lineHeight: 30 },
   primary: {
     backgroundColor: colors.accent,
     borderRadius: radius.pill,

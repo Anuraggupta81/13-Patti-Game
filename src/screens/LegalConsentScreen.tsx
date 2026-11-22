@@ -75,7 +75,7 @@ export function LegalConsentScreen({ onAccept }: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bg },
   container: { padding: 16, paddingBottom: 32 },
-  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 13 },
+  brand: { color: colors.accent, letterSpacing: 3, fontWeight: '700', fontSize: 14 },
   title: { color: colors.text, fontSize: 28, fontWeight: '800', marginTop: 6 },
   body: { color: colors.textMuted, fontSize: 15, lineHeight: 22, marginTop: 8, marginBottom: 16 },
   docButton: {

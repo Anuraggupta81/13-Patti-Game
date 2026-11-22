@@ -16,10 +16,10 @@ import { Card, DEFAULT_RULES, PlayerSeat, Suit } from './types';
 
 const c = (rank: number, suit: Suit = 'S'): Card => ({ rank, suit });
 const SEATS: PlayerSeat[] = [
-  { name: 'You', avatarId: 'billu', isHuman: true },
-  { name: 'Shakti', avatarId: 'shakti', isHuman: false },
-  { name: 'Shwaan', avatarId: 'shwaan', isHuman: false },
-  { name: 'Mahabali', avatarId: 'mahabali', isHuman: false },
+  { name: 'You', avatarId: 'fox', isHuman: true },
+  { name: 'Maya', avatarId: 'unicorn', isHuman: false },
+  { name: 'Ravi', avatarId: 'tiger', isHuman: false },
+  { name: 'Kabir', avatarId: 'king', isHuman: false },
 ];
 
 /** Seeded RNG so tests are deterministic. */
