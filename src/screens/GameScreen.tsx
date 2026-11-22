@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { timerAnnouncement, handAnnouncement, roundAnnouncement, swapAnnouncement } from '../accessibility';
 import {
+  AccessibilityInfo,
   AppState,
   BackHandler,
   Modal,
@@ -11,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { avatarById } from '../avatars';
-import { arrangeCards } from '../game/arrange';
+import { arrangeCards, orderLayout } from '../game/arrange';
 import { CATEGORY_LABEL, scoreHand } from '../game/evaluate';
 import {
   HUMAN_SEAT,
@@ -31,6 +33,8 @@ import { CardView } from '../components/CardView';
 
 interface Props {
   initialMatch: MatchState;
+  soundOn: boolean;
+  onToggleSound: (on: boolean) => void;
   /** Leave the table, keeping the match so it can be resumed later. */
   onSuspend: (match: MatchState) => void;
   /** Match finished; record results and return home. */
@@ -41,7 +45,7 @@ function handOf(layout: Card[], h: number): Card[] {
   return layout.slice(h * HAND_SIZE, h * HAND_SIZE + HAND_SIZE);
 }
 
-export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
+export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, onFinish }: Props) {
   const [match, setMatch] = useState<MatchState>(initialMatch);
   const [selected, setSelected] = useState<number | null>(null);
   const matchRef = useRef(match);
@@ -79,6 +83,28 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
     }
   }, [match.phase, match.secondsLeft]);
 
+  // Screen-reader announcements (AX-10, AX-12).
+  useEffect(() => {
+    if (match.phase !== 'arrange') return;
+    const msg = timerAnnouncement(match.secondsLeft);
+    if (msg) AccessibilityInfo.announceForAccessibility(msg);
+  }, [match.phase, match.secondsLeft]);
+
+  useEffect(() => {
+    if (match.revealed === 0 || match.phase === 'arrange') return;
+    const winners = (match.handWinners[match.revealed - 1] ?? []).map((s) => match.seats[s].name);
+    AccessibilityInfo.announceForAccessibility(handAnnouncement(match.revealed, HANDS_PER_ROUND, winners));
+  }, [match.revealed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (match.phase === 'roundOver') {
+      AccessibilityInfo.announceForAccessibility(roundAnnouncement(match.round));
+    }
+    if (match.phase === 'matchOver') {
+      AccessibilityInfo.announceForAccessibility(resultHeadline(match));
+    }
+  }, [match.phase, match.round]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const seats = match.seats;
   const isHumanArranging = match.phase === 'arrange';
 
@@ -89,11 +115,12 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
       const a = selected;
       setSelected(null);
       setMatch((m) => swapCards(m, a, i));
+      AccessibilityInfo.announceForAccessibility(swapAnnouncement());
     }
   }
 
   function onSuggest() {
-    const layout = arrangeCards(matchRef.current.layouts[HUMAN_SEAT], 'hard');
+    const layout = orderLayout(arrangeCards(matchRef.current.layouts[HUMAN_SEAT], 'hard'));
     setSelected(null);
     setMatch((m) => setHumanLayout(m, layout));
   }
@@ -141,6 +168,16 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
             {match.round} / {match.rules.rounds}
           </Text>
         </View>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => onToggleSound(!soundOn)}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: soundOn }}
+          accessibilityLabel="Sound"
+          accessibilityHint={soundOn ? 'Turn sound off' : 'Turn sound on'}
+        >
+          <Text style={styles.iconText}>{soundOn ? '🔊' : '🔇'}</Text>
+        </TouchableOpacity>
         {isHumanArranging ? (
           <View style={styles.timer}>
             <Text style={styles.timerText}>⏱ {match.secondsLeft}s</Text>
@@ -156,9 +193,9 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
           const avatar = avatarById(seat.avatarId);
           return (
             <View key={i} style={styles.scoreSeat}>
-              <AvatarBadge avatar={avatar} size={48} selected={i === HUMAN_SEAT} />
+              <AvatarBadge avatar={avatar} size={48} selected={i === HUMAN_SEAT} showName={false} />
               <Text style={styles.scoreName} numberOfLines={1}>
-                {seat.isHuman ? 'You' : seat.name}
+                {seat.name}
               </Text>
               <Text style={styles.scoreValue}>{match.totalPoints[i]}</Text>
             </View>
@@ -229,7 +266,7 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
         </View>
       ) : match.phase === 'reveal' ? (
         <View style={styles.bottomBarSingle}>
-          <TouchableOpacity style={styles.primaryButton} onPress={onNextHand} accessibilityRole="button">
+          <TouchableOpacity style={styles.fullButton} onPress={onNextHand} accessibilityRole="button">
             <Text style={styles.primaryText}>
               {match.revealed === 0 ? 'Reveal hand 1' : `Next hand`}
             </Text>
@@ -244,13 +281,13 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
             <Text style={styles.sheetTitle}>Round {match.round} done</Text>
             {seats.map((seat, i) => (
               <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} />
-                <Text style={styles.resultName}>{seat.isHuman ? 'You' : seat.name}</Text>
+                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>{seat.name}</Text>
                 <Text style={styles.resultGain}>+{match.roundPoints[i]}</Text>
                 <Text style={styles.resultTotal}>{match.totalPoints[i]}</Text>
               </View>
             ))}
-            <TouchableOpacity style={styles.primaryButton} onPress={onDealNext} accessibilityRole="button">
+            <TouchableOpacity style={styles.fullButton} onPress={onDealNext} accessibilityRole="button">
               <Text style={styles.primaryText}>
                 {match.round >= match.rules.rounds ? 'See final result' : `Deal round ${match.round + 1}`}
               </Text>
@@ -266,12 +303,12 @@ export function GameScreen({ initialMatch, onSuspend, onFinish }: Props) {
             <Text style={styles.sheetTitle}>{resultHeadline(match)}</Text>
             {seats.map((seat, i) => (
               <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} />
-                <Text style={styles.resultName}>{seat.isHuman ? 'You' : seat.name}</Text>
+                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>{seat.name}</Text>
                 <Text style={styles.resultTotal}>{match.totalPoints[i]} pts</Text>
               </View>
             ))}
-            <TouchableOpacity style={styles.primaryButton} onPress={() => onFinish(match)}>
+            <TouchableOpacity style={styles.fullButton} onPress={() => onFinish(match)} accessibilityRole="button">
               <Text style={styles.primaryText}>Back to home</Text>
             </TouchableOpacity>
           </View>
@@ -312,9 +349,9 @@ function RevealView({ match }: { match: MatchState }) {
         const isWinner = started && winners.includes(s);
         return (
           <View key={s} style={[styles.revealRow, isWinner && styles.revealWinner]}>
-            <AvatarBadge avatar={avatarById(seat.avatarId)} size={44} />
+            <AvatarBadge avatar={avatarById(seat.avatarId)} size={44} showName={false} />
             <View style={styles.revealInfo}>
-              <Text style={styles.revealName}>{seat.isHuman ? 'You' : seat.name}</Text>
+              <Text style={styles.revealName}>{seat.name}</Text>
               {started ? <Text style={styles.revealCat}>{CATEGORY_LABEL[score.category]}</Text> : null}
             </View>
             <View style={styles.revealCards}>
@@ -331,12 +368,12 @@ function RevealView({ match }: { match: MatchState }) {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bg, paddingTop: 40 },
+  flex: { flex: 1, backgroundColor: colors.bg },
   topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 10 },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
@@ -345,7 +382,7 @@ const styles = StyleSheet.create({
   },
   iconText: { color: colors.text, fontSize: 18, fontWeight: '700' },
   roundBox: { flex: 1 },
-  roundLabel: { color: colors.accent, fontWeight: '800', letterSpacing: 2, fontSize: 12 },
+  roundLabel: { color: colors.accent, fontWeight: '800', letterSpacing: 2, fontSize: 14 },
   roundValue: { color: colors.text, fontWeight: '800', fontSize: 22 },
   timer: {
     backgroundColor: '#3D2F16',
@@ -367,7 +404,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   scoreSeat: { alignItems: 'center', width: 76 },
-  scoreName: { color: colors.text, fontSize: 12, marginTop: 4 },
+  scoreName: { color: colors.text, fontSize: 14, marginTop: 4 },
   scoreValue: { color: colors.accent, fontWeight: '800', fontSize: 16, marginTop: 2 },
   body: { padding: 16, paddingBottom: 24 },
   hint: { color: colors.textMuted, textAlign: 'center', marginBottom: 12 },
@@ -391,7 +428,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     marginTop: 6,
   },
-  tagText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  tagText: { color: colors.text, fontSize: 14, fontWeight: '600' },
   handCards: { flexDirection: 'row', gap: 6 },
   spareRow: { backgroundColor: colors.spareBg, borderColor: '#5A4520' },
   spareSub: { color: colors.spareText, marginTop: 4 },
@@ -412,7 +449,7 @@ const styles = StyleSheet.create({
   revealWinner: { borderColor: colors.accent, backgroundColor: '#3D2F16' },
   revealInfo: { flex: 1, marginLeft: 10 },
   revealName: { color: colors.text, fontWeight: '700' },
-  revealCat: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
+  revealCat: { color: colors.textMuted, fontSize: 14, marginTop: 2 },
   revealCards: { flexDirection: 'row', gap: 4 },
   revealPlus: { color: colors.gain, fontWeight: '800', fontSize: 16, width: 34, textAlign: 'right' },
   bottomBar: {
@@ -429,6 +466,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: 15,
     alignItems: 'center',
+  },
+  /** Full-width button for a single-column layout. Same look as Save on the setup screen. */
+  fullButton: {
+    alignSelf: 'stretch',
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryText: { color: colors.accentText, fontWeight: '800', fontSize: 16 },
   secondaryButton: {

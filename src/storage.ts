@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AVATARS, isAvatarUnlocked } from './avatars';
+import { avatarById, DEFAULT_AVATAR_ID, isAvatarUnlocked, resolveAvatarId } from './avatars';
+import { checkCharacterName } from './characterName';
+import type { Consent } from './legal/consent';
 import { MatchState } from './game/types';
 
 /**
@@ -16,7 +18,11 @@ export interface MatchRecord {
 }
 
 export interface Profile {
+  /** The character's game name. Empty until the player sets it on first launch. */
+  characterName: string;
   avatarId: string;
+  /** Sound effects on or off. Defaults to on. */
+  soundOn: boolean;
   played: number;
   won: number;
   totalPoints: number;
@@ -31,9 +37,30 @@ export interface SavedGame {
 
 const KEY_PROFILE = 'patti.profile';
 const KEY_GAME = 'patti.activeGame';
+const KEY_CONSENT = 'patti.consent';
+
+// ---- Consent (privacy and terms, age) ----
+
+export async function loadConsent(): Promise<Consent | null> {
+  const stored = await readJson<Partial<Consent>>(KEY_CONSENT);
+  if (!stored || typeof stored !== 'object') return null;
+  const text = (v: unknown) => (typeof v === 'string' ? v : null);
+  return {
+    legalVersion: text(stored.legalVersion),
+    legalAcceptedAt: text(stored.legalAcceptedAt),
+    over18ConfirmedAt: text(stored.over18ConfirmedAt),
+  };
+}
+
+/** Returns true only when the consent record was written to storage. */
+export async function saveConsent(consent: Consent): Promise<boolean> {
+  return writeJson(KEY_CONSENT, consent);
+}
 
 export const DEFAULT_PROFILE: Profile = {
-  avatarId: 'billu',
+  characterName: '',
+  avatarId: DEFAULT_AVATAR_ID,
+  soundOn: true,
   played: 0,
   won: 0,
   totalPoints: 0,
@@ -80,16 +107,19 @@ export function sanitizeProfile(stored: unknown): Profile {
   if (!stored || typeof stored !== 'object') return { ...DEFAULT_PROFILE, history: [] };
   const s = stored as Partial<Record<keyof Profile, unknown>>;
   const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : 0);
+  const checked = typeof s.characterName === 'string' ? checkCharacterName(s.characterName) : null;
   const profile: Profile = {
+    characterName: checked && checked.ok ? checked.name : '',
     avatarId: DEFAULT_PROFILE.avatarId,
+    soundOn: typeof s.soundOn === 'boolean' ? s.soundOn : true,
     played: count(s.played),
     won: count(s.won),
     totalPoints: count(s.totalPoints),
     stars: count(s.stars),
     history: Array.isArray(s.history) ? (s.history as MatchRecord[]) : [],
   };
-  const avatar = AVATARS.find((a) => a.id === s.avatarId);
-  if (avatar && isAvatarUnlocked(avatar, profile.stars)) profile.avatarId = avatar.id;
+  const id = resolveAvatarId(s.avatarId);
+  if (id && isAvatarUnlocked(avatarById(id), profile.stars)) profile.avatarId = id;
   return profile;
 }
 
@@ -115,4 +145,14 @@ export async function loadActiveGame(): Promise<SavedGame | null> {
 
 export async function clearActiveGame(): Promise<void> {
   await removeKey(KEY_GAME);
+}
+
+/**
+ * Reset progress: closes any game in progress, then clears the profile back to
+ * defaults (stats, stars, history, avatar and character name). Legal and age
+ * confirmations are kept. Returns true only if the cleared profile was saved.
+ */
+export async function resetProgress(): Promise<boolean> {
+  await clearActiveGame();
+  return saveProfile(DEFAULT_PROFILE);
 }

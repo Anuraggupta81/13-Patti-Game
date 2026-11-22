@@ -5,7 +5,7 @@ Play against 3 computer rivals. No login, no personal details, and nothing is se
 
 ## Features
 
-- **No login**: open the app and play. No name, PIN, or account is asked for.
+- **No login**: there is no account, PIN, or personal detail. On first launch you type a character name (up to 12 characters) and pick a character. You can change both later from the home screen.
 - **Progress on the device**: played, won, win rate, total points, stars, and history are kept on the phone only. The player is shown as "You".
 - **Avatar**: tap your avatar on the home screen to choose one. Stars unlock more avatars.
 - **Home**: Play Now, record, Rules, and History.
@@ -65,6 +65,8 @@ The engine implements the variant shown in the design mock-ups:
 
 The official rules sites could not be fetched automatically. Check `src/rulesText.ts`, `src/game/evaluate.ts`, and `skill.md` (section 10, open questions) against the final rules before release.
 
-## Assets
+## Characters and assets
 
-Avatars currently use emoji placeholders on coloured circles (`src/avatars.ts`). Replace them with the artwork from the design when it is ready.
+Characters use generic English names (Fox, Panda, Lion, and so on) and standard emoji artwork, which Unicode and the emoji licence allow to be used freely. The rivals are Maya, Ravi and Kabir. No name or character from an existing film, comic, cartoon or brand is used (see `CHAR-07` in `skill.md`).
+
+Sound effects are not bundled yet. The sound switch saves the setting only.

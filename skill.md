@@ -49,16 +49,56 @@ Rule IDs never change once published. Retire a rule by setting its status to
 
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
-| PRIV-01 | The app does not ask for a name, PIN, email, phone number, or any other personal detail. | Confirmed | Brief |
+| PRIV-01 | The app does not ask for a real name, PIN, email, phone number, or any other personal detail. The only name asked for is the character name (CHAR-01). | Confirmed | Brief |
 | PRIV-02 | The app has no login and no sign-up. The game starts from the home screen. | Confirmed | Brief |
-| PRIV-03 | The player is shown as "You" everywhere in the app. | Confirmed | Implementation |
+| PRIV-03 | Retired: the player was shown as "You". The character name is shown instead (CHAR-03). | Retired | Brief change |
 | PRIV-04 | The avatar is a game preference and holds no personal detail. The player can change it from the home screen. | Assumed | Implementation |
 | PRIV-05 | The app does not collect device identifiers, location, contacts, or analytics. | Confirmed | SCOPE-03 |
+| CHAR-01 | On first launch, the player types a character name and picks a character before playing. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
+| CHAR-02 | "Save & Continue" stays disabled until the name is valid. An error message explains what is wrong. | Confirmed | Implementation |
+| CHAR-03 | The character name is shown at the table, on the scoreboard, and on the home screen. | Confirmed | Brief |
+| CHAR-04 | The player can edit the character name and avatar later from the home screen. Cancel keeps the old values. | Confirmed | Implementation |
+| CHAR-05 | The character name is a game name. It is not a login and must not be a real name, email, or phone number. | Confirmed | Brief |
+| CHAR-06 | Only unlocked characters can be picked. Locked characters show a lock and "???". | Confirmed | STAR-04 |
+| LAYOUT-01 | Screens respect the phone's status bar and navigation bar. No button sits under the system bars. | Confirmed | Brief (screenshot 22 Nov) |
+| LAYOUT-02 | Avatars do not show a second name where the screen already shows one. | Confirmed | Brief (screenshot 22 Nov) |
+| LAYOUT-03 | Layouts adapt to the window width. The character grid picks 3 to 6 columns so avatars and their names are never cut off, and the avatar box grows to fit its name. | Confirmed | Screenshot 22 Nov (names cut off) |
+| LAYOUT-04 | Single-button screens use a full-width button with the same look as Save (16 dp padding, full width). No button collapses to a strip. | Confirmed | Screenshot 22 Nov (Next hand button) |
+| CHAR-07 | Characters and rivals use generic English names and free artwork (standard emoji). No name or character from an existing film, comic, cartoon, or brand is used. Rivals: Maya, Ravi, Kabir. Characters: Fox, Panda, Lion, Dragon, Tiger, King, Unicorn, and locked ones (Duck, Elephant, Owl, Bird, Flame, Storm). | Confirmed | Brief 22 Nov |
+| CHAR-08 | Saved character ids from the earlier names (for example "billu") map to the new ids, so no player loses their character. | Confirmed | Implementation |
+| SET-01 | The gear button on the home screen opens Settings: Sound, Edit character, Privacy Notice, Terms of Use. | Confirmed | Mock-ups (gear icon) |
+| SND-01 | A speaker button on the table and the Sound switch in Settings turn sound on or off. The choice is saved on the device. Defaults to on. | Confirmed | Mock-ups (speaker icon) |
+| SND-02 | No sound files are bundled yet. The switch stores the setting only. | Confirmed | Implementation |
+| RESET-01 | Settings has a "Reset progress" button. Tapping it asks for confirmation with "Cancel" and "Reset". Cancel changes nothing. | Confirmed | Brief 22 Nov |
+| RESET-02 | Reset closes any game in progress and deletes the saved game. | Confirmed | Brief 22 Nov |
+| RESET-03 | Reset clears played, won, win rate, total points, stars, match history, avatar, and character name. The player then sees character setup again, as on first launch. | Confirmed | Brief 22 Nov; "restart from scratch" |
+| RESET-04 | Reset keeps the Privacy Notice and Terms confirmation and the over-18 confirmation. They are never asked again because of a reset. They are not game progress. | Confirmed | Brief 22 Nov |
+| AX-14 | Screen readers announce each hand result ("Hand 2 of 4. Ravi wins this hand." or the tied names), the round end ("Round 2 done."), the match result, and card swaps ("Cards swapped."). | Confirmed | Implementation |
+| AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
+| AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
+| AX-17 | Icon buttons (close, sound, gear) are at least 48 × 48 dp. | Confirmed | AX-06 |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |
 | AUTH-04 | Retired: session and logout removed. See PRIV-02. | Retired | Brief change |
 | AUTH-05 | Retired: PIN field removed. See PRIV-01. | Retired | Brief change |
+
+## 3A. First launch: legal confirmation and age check
+
+Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1.0, 22 November 2026). The text is in `src/legal/content.ts`.
+
+| ID | Rule | Status | Source |
+|----|------|--------|--------|
+| LEGAL-01 | On first launch, the first screen shows the Privacy Notice and Terms of Use. The player can open each one in full. | Confirmed | Brief |
+| LEGAL-02 | The player confirms once by ticking "I have read and agree to the Privacy Notice and Terms of Use." and tapping "Accept & Continue". The button stays disabled until the box is ticked. | Confirmed | Brief |
+| LEGAL-03 | The confirmation is stored on the device (`patti.consent`). It is not asked again on later launches. | Confirmed | Brief |
+| LEGAL-04 | The confirmation is asked again only when `LEGAL_VERSION` changes. | Assumed | Implementation |
+| LEGAL-05 | The Privacy Notice and Terms of Use can be read again from the home screen at any time. | Confirmed | Documents (Settings menu reference) |
+| AGE-01 | After the legal confirmation, the second screen asks "Are you 18 or over?" with two buttons: "I am Over 18" and "No, I am under 18". | Confirmed | Brief |
+| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. The question is not asked again. | Confirmed | Brief |
+| AGE-03 | Choosing "No, I am under 18" shows "Minors are not allowed to play the game." and a countdown. The app closes after 3 seconds. | Confirmed | Brief |
+| AGE-04 | The under-18 answer is not stored. The question is asked again on the next launch. | Assumed | Implementation |
+| ORDER-01 | First-launch order: Privacy Notice and Terms, then the age check, then character setup, then home. Each step is shown only if it has not been completed. | Assumed | Brief (order implied); confirm |
 
 ## 4. Game rules
 
@@ -67,7 +107,7 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | ID | Rule | Status | Source |
 |----|------|--------|--------|
 | GAME-01 | Each round uses a standard 52-card deck, shuffled. | Confirmed | Brief |
-| GAME-02 | Four players sit at the table: "You" and three rivals (Shakti, Shwaan, Mahabali). | Confirmed | Mock-ups |
+| GAME-02 | Four players sit at the table: the player's character and three rivals (Maya, Ravi, Kabir). | Confirmed | Mock-ups; names changed 22 Nov (CHAR-07) |
 | GAME-03 | Each player is dealt 13 cards. | Confirmed | Brief |
 | GAME-04 | Each player arranges their 13 cards into four 3-card hands and one spare card. | Confirmed | Mock-ups |
 | GAME-05 | The number of rounds is 3, 5, 7, or 10. The default is 5. | Confirmed | Mock-up (house rules) |
@@ -81,6 +121,7 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | ARR-03 | The arrange timer is 45, 60, 90, or 120 seconds. The default is 90. | Confirmed | Mock-up |
 | ARR-04 | When the timer reaches zero, the player's current arrangement is locked as it is. It is not rearranged automatically. | Assumed | Implementation; confirm |
 | ARR-05 | "Suggest" rearranges the player's cards into the strongest hands the app can find. It does not lock them. | Confirmed | Mock-up |
+| ARR-10 | After Suggest, the hands are shown from strongest (Hand 1) to weakest (Hand 4). Inside each hand the cards go from highest to lowest. The spare stays last. | Confirmed | Brief 22 Nov |
 | ARR-06 | "Show cards" locks the arrangement and starts the reveal. | Confirmed | Mock-up |
 | ARR-07 | Each hand shows its category label (for example "Pair" or "High Card") while arranging. | Confirmed | Mock-up |
 | ARR-08 | The spare card is shown with the note "Breaks ties". | Confirmed | Mock-up |
@@ -184,7 +225,7 @@ contrast, reduced motion, and switch or keyboard access.
 | AX-07 | Text grows with the system font size. No text is cut off at 200% scale. | Confirmed |
 | AX-08 | Focus order follows the visual order: top bar, scoreboard, hands, actions. | Confirmed |
 | AX-09 | Every screen can be used without a touch screen (switch access or TalkBack gestures). | Confirmed |
-| AX-10 | Timer changes are announced at 30, 10, and 5 seconds left. The timer is never the only way to finish arranging. | Assumed |
+| AX-10 | Timer changes are announced at 30, 10, and 5 seconds left ("30 seconds left to arrange."). The timer is never the only way to finish arranging. | Confirmed |
 | AX-11 | Motion is kept small. Animations are skipped when "remove animations" is on. | Assumed |
 | AX-12 | Results (round, match) are announced when they appear. | Confirmed |
 | AX-13 | Decorative images are hidden from screen readers. | Confirmed |
@@ -279,8 +320,8 @@ Feature: Resume an unsaved game
   @AX-12
   Scenario: The result of a hand is announced to screen readers
     Given TalkBack is on
-    When Hand 3 is revealed and "Shwaan" wins it
-    Then TalkBack announces "Hand 3 of 4. Shwaan wins this hand."
+    When Hand 3 is revealed and "Ravi" wins it
+    Then TalkBack announces "Hand 3 of 4. Ravi wins this hand."
 ```
 
 ## 9. Definition of Done for a game feature
@@ -300,9 +341,13 @@ Feature: Resume an unsaved game
 | Q-03 | Is a Sequence (A-2-3) the lowest? Is K-A-2 a sequence? (Current: A-2-3 lowest, K-A-2 not a sequence.) | RANK-07, RANK-08 |
 | Q-04 | When two hands are fully equal, does the point go to both players or to none? (Current: both.) | SCORE-04 |
 | Q-05 | When the arrange timer runs out, should the app rearrange the cards or keep them as they are? (Current: keep.) | ARR-04 |
-| Q-06 | Should the player be able to reset their progress from inside the app? (Current: no reset option.) | DB-09 |
+| Q-06 | Resolved 22 Nov: the player can reset progress from Settings (RESET-01 to RESET-04). | DB-09 |
 | Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
 | Q-08 | What is the Android package name for release? | SCOPE-01 |
+| Q-09 | The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
+| Q-10 | The documents say the game is only for Australia and India. The app does not check location. Should it? | Terms s.2 |
+| Q-11 | Is the first-launch order (legal, then age, then setup) right? | ORDER-01 |
+| Q-12 | Should the under-18 answer be remembered on the device, so the player is blocked on the next launch too? (Current: no.) | AGE-04 |
 
 ## 11. Glossary
 

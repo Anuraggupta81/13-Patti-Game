@@ -11,6 +11,8 @@ export const colors = {
   gold: '#E0A526',
   gain: '#4CAF50',
   red: '#D32F2F',
+  /** Error text on the dark background (passes 4.5:1 contrast). */
+  error: '#FF8A8A',
   cardFace: '#FFFFFF',
   cardBack: '#2B4C7E',
   spareBg: '#3D2F16',

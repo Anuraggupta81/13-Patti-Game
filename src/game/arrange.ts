@@ -1,6 +1,6 @@
 import { shuffle } from './cards';
 import { scoreHand, strengthValue } from './evaluate';
-import { Card, Difficulty, HAND_SIZE, HANDS_PER_ROUND } from './types';
+import { Card, Difficulty, HAND_SIZE, HANDS_PER_ROUND, SPARE_INDEX } from './types';
 
 /** Total strength of a 13-card layout: the sum over the 4 hands. */
 export function layoutStrength(layout: Card[]): number {
@@ -68,4 +68,19 @@ export function arrangeCards(
     case 'hard':
       return hillClimb(bestOfRandom(cards, 3000, random));
   }
+}
+
+/**
+ * Orders a 13-card layout for display: hands from strongest (Hand 1) to weakest
+ * (Hand 4), cards inside each hand from highest to lowest, spare last.
+ * The same cards are kept; only their order changes.
+ */
+export function orderLayout(layout: Card[]): Card[] {
+  const hands = [0, 1, 2, 3].map((h) => {
+    const cards = layout.slice(h * HAND_SIZE, h * HAND_SIZE + HAND_SIZE);
+    const sorted = [...cards].sort((a, b) => b.rank - a.rank);
+    return { cards: sorted, strength: strengthValue(scoreHand(sorted)) };
+  });
+  hands.sort((a, b) => b.strength - a.strength);
+  return [...hands.flatMap((h) => h.cards), layout[SPARE_INDEX]];
 }
