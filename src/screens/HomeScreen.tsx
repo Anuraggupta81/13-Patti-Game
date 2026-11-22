@@ -17,9 +17,17 @@ interface Props {
   onEditCharacter: () => void;
   soundOn: boolean;
   onToggleSound: (on: boolean) => void;
+  onResetProgress: () => void;
 }
 
-export function HomeScreen({ profile, onStart, onEditCharacter, soundOn, onToggleSound }: Props) {
+export function HomeScreen({
+  profile,
+  onStart,
+  onEditCharacter,
+  soundOn,
+  onToggleSound,
+  onResetProgress,
+}: Props) {
   const [showSettings, setShowSettings] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -156,6 +164,10 @@ export function HomeScreen({ profile, onStart, onEditCharacter, soundOn, onToggl
         onOpenTerms={() => {
           setShowSettings(false);
           setLegalDoc(TERMS_OF_USE);
+        }}
+        onResetProgress={() => {
+          setShowSettings(false);
+          onResetProgress();
         }}
       />
 

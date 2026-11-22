@@ -9,6 +9,7 @@ interface Props {
   onEditCharacter: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
+  onResetProgress: () => void;
   onClose: () => void;
 }
 
@@ -20,6 +21,7 @@ export function SettingsSheet({
   onEditCharacter,
   onOpenPrivacy,
   onOpenTerms,
+  onResetProgress,
   onClose,
 }: Props) {
   return (
@@ -47,6 +49,15 @@ export function SettingsSheet({
         <Item label="Edit character" onPress={onEditCharacter} />
         <Item label="Privacy Notice" onPress={onOpenPrivacy} />
         <Item label="Terms of Use" onPress={onOpenTerms} />
+
+        <TouchableOpacity
+          style={styles.reset}
+          onPress={onResetProgress}
+          accessibilityRole="button"
+          accessibilityHint="Asks for confirmation. Clears stats, stars, history, saved game and character"
+        >
+          <Text style={styles.resetText}>Reset progress</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.close} onPress={onClose} accessibilityRole="button">
           <Text style={styles.closeText}>Close</Text>
@@ -109,4 +120,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeText: { color: colors.accentText, fontWeight: '800', fontSize: 16 },
+  reset: {
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: colors.error,
+    borderRadius: radius.pill,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  resetText: { color: colors.error, fontWeight: '700', fontSize: 16 },
 });

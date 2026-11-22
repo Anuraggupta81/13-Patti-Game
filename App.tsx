@@ -14,6 +14,8 @@ import {
   saveActiveGame,
   saveConsent,
   saveProfile,
+  DEFAULT_PROFILE,
+  resetProgress,
 } from './src/storage';
 import {
   Consent,
@@ -192,6 +194,32 @@ export default function App() {
     setScreen('home');
   }
 
+  /** Asks first, because reset cannot be undone. */
+  function askResetProgress() {
+    Alert.alert(
+      'Reset progress?',
+      'This closes any game in progress and clears your stats, stars, history, saved game and character. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reset', style: 'destructive', onPress: confirmReset },
+      ],
+      { cancelable: true },
+    );
+  }
+
+  /** Clears the game in progress and all progress, then starts again from character setup. */
+  async function confirmReset() {
+    const ok = await resetProgress();
+    if (!ok) {
+      Alert.alert('Could not reset', 'Could not reset your progress. Please try again.');
+      return;
+    }
+    setProfile(DEFAULT_PROFILE);
+    setGame(null);
+    setSetupMode('first');
+    setScreen('setup');
+  }
+
   /** Sound on or off. Saved to the device profile. */
   async function setSound(on: boolean) {
     if (!profile) return;
@@ -241,6 +269,7 @@ export default function App() {
             profile={profile}
             soundOn={profile.soundOn}
             onToggleSound={setSound}
+            onResetProgress={askResetProgress}
             onStart={startMatch}
             onEditCharacter={() => {
               setSetupMode('edit');

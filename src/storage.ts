@@ -146,3 +146,13 @@ export async function loadActiveGame(): Promise<SavedGame | null> {
 export async function clearActiveGame(): Promise<void> {
   await removeKey(KEY_GAME);
 }
+
+/**
+ * Reset progress: closes any game in progress, then clears the profile back to
+ * defaults (stats, stars, history, avatar and character name). Legal and age
+ * confirmations are kept. Returns true only if the cleared profile was saved.
+ */
+export async function resetProgress(): Promise<boolean> {
+  await clearActiveGame();
+  return saveProfile(DEFAULT_PROFILE);
+}

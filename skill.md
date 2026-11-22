@@ -67,6 +67,10 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | SET-01 | The gear button on the home screen opens Settings: Sound, Edit character, Privacy Notice, Terms of Use. | Confirmed | Mock-ups (gear icon) |
 | SND-01 | A speaker button on the table and the Sound switch in Settings turn sound on or off. The choice is saved on the device. Defaults to on. | Confirmed | Mock-ups (speaker icon) |
 | SND-02 | No sound files are bundled yet. The switch stores the setting only. | Confirmed | Implementation |
+| RESET-01 | Settings has a "Reset progress" button. Tapping it asks for confirmation with "Cancel" and "Reset". Cancel changes nothing. | Confirmed | Brief 22 Nov |
+| RESET-02 | Reset closes any game in progress and deletes the saved game. | Confirmed | Brief 22 Nov |
+| RESET-03 | Reset clears played, won, win rate, total points, stars, match history, avatar, and character name. The player then sees character setup again, as on first launch. | Confirmed | Brief 22 Nov; "restart from scratch" |
+| RESET-04 | Reset keeps the Privacy Notice and Terms confirmation and the over-18 confirmation. They are not game progress. | Assumed | Implementation; confirm |
 | AX-14 | Screen readers announce each hand result ("Hand 2 of 4. Ravi wins this hand." or the tied names), the round end ("Round 2 done."), the match result, and card swaps ("Cards swapped."). | Confirmed | Implementation |
 | AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
 | AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
@@ -334,7 +338,7 @@ Feature: Resume an unsaved game
 | Q-03 | Is a Sequence (A-2-3) the lowest? Is K-A-2 a sequence? (Current: A-2-3 lowest, K-A-2 not a sequence.) | RANK-07, RANK-08 |
 | Q-04 | When two hands are fully equal, does the point go to both players or to none? (Current: both.) | SCORE-04 |
 | Q-05 | When the arrange timer runs out, should the app rearrange the cards or keep them as they are? (Current: keep.) | ARR-04 |
-| Q-06 | Should the player be able to reset their progress from inside the app? (Current: no reset option.) | DB-09 |
+| Q-06 | Resolved 22 Nov: the player can reset progress from Settings (RESET-01 to RESET-04). | DB-09 |
 | Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
 | Q-08 | What is the Android package name for release? | SCOPE-01 |
 | Q-09 | The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |

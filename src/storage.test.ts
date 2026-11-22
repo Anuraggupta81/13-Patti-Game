@@ -1,5 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DEFAULT_PROFILE, loadProfile, Profile, sanitizeProfile, saveProfile } from './storage';
+import {
+  DEFAULT_PROFILE,
+  loadActiveGame,
+  loadProfile,
+  Profile,
+  resetProgress,
+  sanitizeProfile,
+  saveActiveGame,
+  saveProfile,
+} from './storage';
+import { createMatch } from './game/engine';
+import { DEFAULT_RULES } from './game/types';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
@@ -136,6 +147,43 @@ describe('character name is remembered', () => {
 
   it('keeps a valid stored name with extra spaces tidied', () => {
     expect(sanitizeProfile({ characterName: '  Anu  ' }).characterName).toBe('Anu');
+  });
+});
+
+describe('reset progress', () => {
+  const seats = [
+    { name: 'Anu', avatarId: 'fox', isHuman: true },
+    { name: 'Maya', avatarId: 'unicorn', isHuman: false },
+    { name: 'Ravi', avatarId: 'tiger', isHuman: false },
+    { name: 'Kabir', avatarId: 'king', isHuman: false },
+  ];
+
+  it('clears stats, stars, history, avatar and character name', async () => {
+    await saveProfile({
+      ...DEFAULT_PROFILE,
+      characterName: 'Anu',
+      avatarId: 'lion',
+      soundOn: false,
+      played: 4,
+      won: 2,
+      totalPoints: 30,
+      stars: 6,
+      history: [{ finishedAt: '2026-11-22T10:00:00.000Z', rounds: 3, points: 5, placed: 'won', difficulty: 'easy' }],
+    });
+    expect(await resetProgress()).toBe(true);
+    expect(await loadProfile()).toEqual({ ...DEFAULT_PROFILE, history: [] });
+  });
+
+  it('closes the game in progress', async () => {
+    await saveActiveGame(createMatch(DEFAULT_RULES, seats, () => 0.5));
+    expect(await loadActiveGame()).not.toBeNull();
+    await resetProgress();
+    expect(await loadActiveGame()).toBeNull();
+  });
+
+  it('returns false when the cleared profile cannot be saved', async () => {
+    jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('storage full'));
+    expect(await resetProgress()).toBe(false);
   });
 });
 
