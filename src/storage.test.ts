@@ -2,11 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   DEFAULT_PROFILE,
   loadActiveGame,
+  loadConsent,
   loadProfile,
   Profile,
   resetProgress,
   sanitizeProfile,
   saveActiveGame,
+  saveConsent,
   saveProfile,
 } from './storage';
 import { createMatch } from './game/engine';
@@ -179,6 +181,17 @@ describe('reset progress', () => {
     expect(await loadActiveGame()).not.toBeNull();
     await resetProgress();
     expect(await loadActiveGame()).toBeNull();
+  });
+
+  it('keeps the Privacy Notice, Terms and over-18 confirmations', async () => {
+    const consent = {
+      legalVersion: '1.0',
+      legalAcceptedAt: '2026-11-22T08:00:00.000Z',
+      over18ConfirmedAt: '2026-11-22T08:01:00.000Z',
+    };
+    await saveConsent(consent);
+    await resetProgress();
+    expect(await loadConsent()).toEqual(consent);
   });
 
   it('returns false when the cleared profile cannot be saved', async () => {

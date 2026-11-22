@@ -70,7 +70,7 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | RESET-01 | Settings has a "Reset progress" button. Tapping it asks for confirmation with "Cancel" and "Reset". Cancel changes nothing. | Confirmed | Brief 22 Nov |
 | RESET-02 | Reset closes any game in progress and deletes the saved game. | Confirmed | Brief 22 Nov |
 | RESET-03 | Reset clears played, won, win rate, total points, stars, match history, avatar, and character name. The player then sees character setup again, as on first launch. | Confirmed | Brief 22 Nov; "restart from scratch" |
-| RESET-04 | Reset keeps the Privacy Notice and Terms confirmation and the over-18 confirmation. They are not game progress. | Assumed | Implementation; confirm |
+| RESET-04 | Reset keeps the Privacy Notice and Terms confirmation and the over-18 confirmation. They are never asked again because of a reset. They are not game progress. | Confirmed | Brief 22 Nov |
 | AX-14 | Screen readers announce each hand result ("Hand 2 of 4. Ravi wins this hand." or the tied names), the round end ("Round 2 done."), the match result, and card swaps ("Cards swapped."). | Confirmed | Implementation |
 | AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
 | AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
