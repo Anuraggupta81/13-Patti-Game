@@ -113,9 +113,9 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | LEGAL-04 | The confirmation is asked again only when `LEGAL_VERSION` changes. | Assumed | Implementation |
 | LEGAL-05 | The Privacy Notice and Terms of Use can be read again from the home screen at any time. | Confirmed | Documents (Settings menu reference) |
 | AGE-01 | After the legal confirmation, the second screen asks "Are you 18 or over?" with two buttons: "I am Over 18" and "No, I am under 18". | Confirmed | Brief |
-| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. The question is not asked again. | Confirmed | Brief |
+| AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. It is saved on the device, so the question is not asked again on later launches. | Confirmed | Brief |
 | AGE-03 | Choosing "No, I am under 18" shows "Minors are not allowed to play the game." and a countdown. The app closes after 3 seconds. | Confirmed | Brief |
-| AGE-04 | An under-18 answer is remembered on the device (Q-12, decided 22 Nov). The app opens at the minors message on every later launch and closes after 3 seconds. | Confirmed | Q-12 decision |
+| AGE-04 | An "under 18" answer is not stored. The app shows the minors message and closes after 3 seconds, and the question is asked again the next time the app opens. Changed 23 Nov: the earlier permanent block is removed. | Confirmed | Player request, 23 Nov |
 | ORDER-01 | First-launch order: Privacy Notice and Terms, then the age check, then character setup, then home. Each step is shown only if it has not been completed. | Assumed | Brief (order implied); confirm |
 
 ## 4. Game rules
@@ -366,7 +366,7 @@ Feature: Resume an unsaved game
 | Q-09 | OPEN, needs your decision. The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
 | Q-10 | Resolved 22 Nov: no location check. Players confirm their age and accept the Terms instead. The Terms text about Australia and India is unchanged. | Terms s.2 |
 | Q-11 | Decided 22 Nov: the first-launch order is Privacy Notice and Terms, then age check, then character setup. Kept as built. | ORDER-01 |
-| Q-12 | Decided 22 Nov: yes. An under-18 answer is remembered on the device, and the app stays closed on later launches. Built. | AGE-04 |
+| Q-12 | Changed 23 Nov: an "under 18" answer is not remembered. The question is asked again on each launch (AGE-04). An "over 18" answer is remembered. | AGE-02, AGE-04 |
 
 ## 11. Glossary
 

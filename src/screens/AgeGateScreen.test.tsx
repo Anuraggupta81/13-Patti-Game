@@ -40,25 +40,6 @@ describe('age gate', () => {
     expect(onOver18).not.toHaveBeenCalled();
   });
 
-  it('remembers an under-18 answer by calling onUnder18', async () => {
-    const onUnder18 = jest.fn();
-    const r = await render(<AgeGateScreen onOver18={() => {}} onUnder18={onUnder18} onExit={() => {}} />);
-    await fireEvent.press(r.getByText('No, I am under 18'));
-    expect(onUnder18).toHaveBeenCalledTimes(1);
-  });
-
-  it('starts at the minors message on a later launch and still closes the app', async () => {
-    const onExit = jest.fn();
-    const r = await render(<AgeGateScreen onOver18={() => {}} alreadyUnder18 onExit={onExit} />);
-    expect(r.getByText(MINOR_MESSAGE)).toBeTruthy();
-    for (let s = 1; s <= CLOSE_AFTER_SECONDS; s++) {
-      await act(async () => {
-        jest.advanceTimersByTime(1000);
-      });
-    }
-    expect(onExit).toHaveBeenCalledTimes(1);
-  });
-
   it('closes the app after 3 seconds, not before', async () => {
     const onExit = jest.fn();
     const r = await render(<AgeGateScreen onOver18={() => {}} onExit={onExit} />);

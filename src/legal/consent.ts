@@ -31,11 +31,6 @@ export function needsAgeConfirmation(consent: Consent | null): boolean {
   return !consent || !consent.over18ConfirmedAt;
 }
 
-/** True when the player previously said they are under 18. The app stays closed. */
-export function isBlockedAsMinor(consent: Consent | null): boolean {
-  return !!consent && !!consent.underAgeAt;
-}
-
 export function withLegalAccepted(consent: Consent | null, now: Date): Consent {
   return {
     ...(consent ?? NO_CONSENT),
@@ -51,9 +46,3 @@ export function withAdultConfirmed(consent: Consent | null, now: Date): Consent 
   };
 }
 
-export function withUnderAge(consent: Consent | null, now: Date): Consent {
-  return {
-    ...(consent ?? NO_CONSENT),
-    underAgeAt: now.toISOString(),
-  };
-}

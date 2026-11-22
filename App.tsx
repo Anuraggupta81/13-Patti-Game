@@ -19,13 +19,11 @@ import {
 } from './src/storage';
 import {
   Consent,
-  isBlockedAsMinor,
   needsAgeConfirmation,
   needsLegalAcceptance,
   NO_CONSENT,
   withAdultConfirmed,
   withLegalAccepted,
-  withUnderAge,
 } from './src/legal/consent';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { GameScreen } from './src/screens/GameScreen';
@@ -56,8 +54,6 @@ function buildSeats(profile: Profile): PlayerSeat[] {
  * After that the player goes straight to the home screen.
  */
 function firstScreenFor(consent: Consent, profile: Profile): Screen {
-  // A player who said "under 18" stays at the age screen (Q-12).
-  if (isBlockedAsMinor(consent)) return 'age';
   if (needsLegalAcceptance(consent)) return 'legal';
   if (needsAgeConfirmation(consent)) return 'age';
   if (!profile.characterName) return 'setup';
@@ -120,13 +116,6 @@ export default function App() {
     }
     setConsent(updated);
     setScreen(firstScreenFor(updated, profile!));
-  }
-
-  /** Player said they are under 18. Remembered, so the app stays closed on later launches. */
-  async function rememberUnder18() {
-    const updated = withUnderAge(consent, new Date());
-    await saveConsent(updated);
-    setConsent(updated);
   }
 
   /** Player confirmed they are over 18. Saved once. */
@@ -275,13 +264,7 @@ export default function App() {
           </View>
         )}
         {screen === 'legal' && <LegalConsentScreen onAccept={acceptLegal} />}
-        {screen === 'age' && (
-          <AgeGateScreen
-            onOver18={confirmOver18}
-            onUnder18={rememberUnder18}
-            alreadyUnder18={isBlockedAsMinor(consent)}
-          />
-        )}
+        {screen === 'age' && <AgeGateScreen onOver18={confirmOver18} />}
         {screen === 'setup' && profile && (
           <SetupScreen
             mode={setupMode}
