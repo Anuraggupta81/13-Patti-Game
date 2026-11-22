@@ -384,6 +384,7 @@ Feature: Resume an unsaved game
 
 ## 12. Sources
 
+- Rules (final, supplied by the player 22 Nov): C:UserssvishDesktop patti game patti rules.txt. Matches the pasted rules and includes the highest-group-first rule (ORDER-02). Spare card: not mentioned in the file; kept as in the mock-ups.
 - Rules reference: https://www.wikihow.com/Play-the-Card-Game-13 (could not be fetched automatically; check it manually)
 - Rules reference: https://boardgamegeek.com/thread/911702/our-thirteen-rules (returned HTTP 403 during the build)
 - Design mock-ups: `C:\Users\svish\Projects\13 patti\screens` (7 screens)
