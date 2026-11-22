@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { avatarById } from '../avatars';
-import { arrangeCards } from '../game/arrange';
+import { arrangeCards, orderLayout } from '../game/arrange';
 import { CATEGORY_LABEL, scoreHand } from '../game/evaluate';
 import {
   HUMAN_SEAT,
@@ -120,7 +120,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
   }
 
   function onSuggest() {
-    const layout = arrangeCards(matchRef.current.layouts[HUMAN_SEAT], 'hard');
+    const layout = orderLayout(arrangeCards(matchRef.current.layouts[HUMAN_SEAT], 'hard'));
     setSelected(null);
     setMatch((m) => setHumanLayout(m, layout));
   }

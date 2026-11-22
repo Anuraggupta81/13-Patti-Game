@@ -121,6 +121,7 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | ARR-03 | The arrange timer is 45, 60, 90, or 120 seconds. The default is 90. | Confirmed | Mock-up |
 | ARR-04 | When the timer reaches zero, the player's current arrangement is locked as it is. It is not rearranged automatically. | Assumed | Implementation; confirm |
 | ARR-05 | "Suggest" rearranges the player's cards into the strongest hands the app can find. It does not lock them. | Confirmed | Mock-up |
+| ARR-10 | After Suggest, the hands are shown from strongest (Hand 1) to weakest (Hand 4). Inside each hand the cards go from highest to lowest. The spare stays last. | Confirmed | Brief 22 Nov |
 | ARR-06 | "Show cards" locks the arrangement and starts the reveal. | Confirmed | Mock-up |
 | ARR-07 | Each hand shows its category label (for example "Pair" or "High Card") while arranging. | Confirmed | Mock-up |
 | ARR-08 | The spare card is shown with the note "Breaks ties". | Confirmed | Mock-up |
