@@ -62,6 +62,8 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | CHAR-06 | Only unlocked characters can be picked. Locked characters show a lock and "???". | Confirmed | STAR-04 |
 | LAYOUT-01 | Screens respect the phone's status bar and navigation bar. No button sits under the system bars. | Confirmed | Brief (screenshot 22 Nov) |
 | LAYOUT-02 | Avatars do not show a second name where the screen already shows one. | Confirmed | Brief (screenshot 22 Nov) |
+| LAYOUT-03 | Layouts adapt to the window width. The character grid picks 3 to 6 columns so avatars and their names are never cut off, and the avatar box grows to fit its name. | Confirmed | Screenshot 22 Nov (names cut off) |
+| LAYOUT-04 | Single-button screens use a full-width button with the same look as Save (16 dp padding, full width). No button collapses to a strip. | Confirmed | Screenshot 22 Nov (Next hand button) |
 | CHAR-07 | Characters and rivals use generic English names and free artwork (standard emoji). No name or character from an existing film, comic, cartoon, or brand is used. Rivals: Maya, Ravi, Kabir. Characters: Fox, Panda, Lion, Dragon, Tiger, King, Unicorn, and locked ones (Duck, Elephant, Owl, Bird, Flame, Storm). | Confirmed | Brief 22 Nov |
 | CHAR-08 | Saved character ids from the earlier names (for example "billu") map to the new ids, so no player loses their character. | Confirmed | Implementation |
 | SET-01 | The gear button on the home screen opens Settings: Sound, Edit character, Privacy Notice, Terms of Use. | Confirmed | Mock-ups (gear icon) |

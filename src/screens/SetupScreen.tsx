@@ -7,9 +7,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { AVATARS, avatarById, isAvatarUnlocked } from '../avatars';
+import { avatarGridLayout } from '../layout';
 import { CHARACTER_NAME_MAX, checkCharacterName } from '../characterName';
 import { colors, radius } from '../theme';
 import { AvatarBadge } from '../components/AvatarBadge';
@@ -31,6 +33,8 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
 
   const check = checkCharacterName(name);
   const selected = avatarById(avatarId);
+  const { width: windowWidth } = useWindowDimensions();
+  const grid = avatarGridLayout(windowWidth);
 
   function save() {
     const result = checkCharacterName(name);
@@ -79,10 +83,11 @@ export function SetupScreen({ mode, initialName, initialAvatarId, stars, onSave,
           {AVATARS.map((avatar) => {
             const unlocked = isAvatarUnlocked(avatar, stars);
             return (
-              <View key={avatar.id} style={styles.avatarCell}>
+              <View key={avatar.id} style={[styles.avatarCell, { width: grid.cellWidth }]}>
                 <AvatarBadge
                   avatar={avatar}
-                  size={72}
+                  size={grid.size}
+                  labelWidth={grid.cellWidth}
                   locked={!unlocked}
                   selected={avatarId === avatar.id}
                   onPress={unlocked ? () => setAvatarId(avatar.id) : undefined}
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
   },
   hint: { color: colors.textMuted, fontSize: 14, marginTop: 8, lineHeight: 18 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 },
-  avatarCell: { width: '25%', alignItems: 'center', paddingVertical: 6 },
+  avatarCell: { alignItems: 'center', paddingVertical: 8 },
   error: { color: colors.error, marginTop: 12, fontWeight: '600' },
   primary: {
     marginTop: 20,
@@ -154,7 +159,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
-    paddingVertical: 14,
+    paddingVertical: 16,
     alignItems: 'center',
   },
   secondaryText: { color: colors.text, fontWeight: '700', fontSize: 16 },

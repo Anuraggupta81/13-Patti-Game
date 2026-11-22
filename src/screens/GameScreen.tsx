@@ -266,7 +266,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
         </View>
       ) : match.phase === 'reveal' ? (
         <View style={styles.bottomBarSingle}>
-          <TouchableOpacity style={styles.primaryButton} onPress={onNextHand} accessibilityRole="button">
+          <TouchableOpacity style={styles.fullButton} onPress={onNextHand} accessibilityRole="button">
             <Text style={styles.primaryText}>
               {match.revealed === 0 ? 'Reveal hand 1' : `Next hand`}
             </Text>
@@ -287,7 +287,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
                 <Text style={styles.resultTotal}>{match.totalPoints[i]}</Text>
               </View>
             ))}
-            <TouchableOpacity style={styles.primaryButton} onPress={onDealNext} accessibilityRole="button">
+            <TouchableOpacity style={styles.fullButton} onPress={onDealNext} accessibilityRole="button">
               <Text style={styles.primaryText}>
                 {match.round >= match.rules.rounds ? 'See final result' : `Deal round ${match.round + 1}`}
               </Text>
@@ -308,7 +308,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
                 <Text style={styles.resultTotal}>{match.totalPoints[i]} pts</Text>
               </View>
             ))}
-            <TouchableOpacity style={styles.primaryButton} onPress={() => onFinish(match)}>
+            <TouchableOpacity style={styles.fullButton} onPress={() => onFinish(match)} accessibilityRole="button">
               <Text style={styles.primaryText}>Back to home</Text>
             </TouchableOpacity>
           </View>
@@ -466,6 +466,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: 15,
     alignItems: 'center',
+  },
+  /** Full-width button for a single-column layout. Same look as Save on the setup screen. */
+  fullButton: {
+    alignSelf: 'stretch',
+    backgroundColor: colors.accent,
+    borderRadius: radius.pill,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryText: { color: colors.accentText, fontWeight: '800', fontSize: 16 },
   secondaryButton: {
