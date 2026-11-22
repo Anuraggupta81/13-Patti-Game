@@ -364,7 +364,7 @@ Feature: Resume an unsaved game
 | Q-07 | Decided 22 Nov: avatars unlock at 3, 6, 9, 12, 15 and 18 stars, as the mock-up suggests. Kept as built. | STAR-03 |
 | Q-08 | Resolved 22 Nov: Android package name is com.vgtech.thirteenpatti. | SCOPE-01 |
 | Q-09 | OPEN, needs your decision. The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
-| Q-10 | OPEN, needs your decision. The Terms say the game is only for Australia and India. The app does not check location, and adding a check would need a location permission that the Privacy Notice does not describe. | Terms s.2 |
+| Q-10 | Resolved 22 Nov: no location check. Players confirm their age and accept the Terms instead. The Terms text about Australia and India is unchanged. | Terms s.2 |
 | Q-11 | Decided 22 Nov: the first-launch order is Privacy Notice and Terms, then age check, then character setup. Kept as built. | ORDER-01 |
 | Q-12 | Decided 22 Nov: yes. An under-18 answer is remembered on the device, and the app stays closed on later launches. Built. | AGE-04 |
 
