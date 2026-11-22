@@ -188,9 +188,9 @@ export function HomeScreen({
           />
           <ChoiceRow
             label="Time to arrange"
-            options={[45, 60, 90, 120]}
+            options={[0, 45, 60, 90, 120]}
             value={rules.arrangeSeconds}
-            format={(v) => `${v}s`}
+            format={(v) => (v === 0 ? 'No timer' : `${v}s`)}
             onChange={(arrangeSeconds) =>
               setRules({ ...rules, arrangeSeconds: arrangeSeconds as HouseRules['arrangeSeconds'] })
             }

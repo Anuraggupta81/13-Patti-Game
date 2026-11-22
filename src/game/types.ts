@@ -10,14 +10,15 @@ export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface HouseRules {
   rounds: 3 | 5 | 7 | 10;
-  arrangeSeconds: 45 | 60 | 90 | 120;
+  /** 0 = no timer. */
+  arrangeSeconds: 0 | 45 | 60 | 90 | 120;
   sweepBonus: 0 | 3 | 5;
   difficulty: Difficulty;
 }
 
 export const DEFAULT_RULES: HouseRules = {
   rounds: 5,
-  arrangeSeconds: 90,
+  arrangeSeconds: 0,
   sweepBonus: 3,
   difficulty: 'medium',
 };

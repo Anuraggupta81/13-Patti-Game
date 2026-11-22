@@ -54,7 +54,7 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | PRIV-03 | Retired: the player was shown as "You". The character name is shown instead (CHAR-03). | Retired | Brief change |
 | PRIV-04 | The avatar is a game preference and holds no personal detail. The player can change it from the home screen. | Assumed | Implementation |
 | PRIV-05 | The app does not collect device identifiers, location, contacts, or analytics. | Confirmed | SCOPE-03 |
-| CHAR-01 | On first launch, the player types a character name and picks a character before playing. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
+| CHAR-01 | On first launch, the player types an optional nickname and picks a character before playing. A blank nickname uses "Player" (review deck, slide 9 and 15). The nickname is saved on this phone only. The name is 1 to 12 characters. Letters (any script), digits, spaces, dots, apostrophes and hyphens are allowed. | Confirmed | Brief |
 | CHAR-02 | "Save & Continue" stays disabled until the name is valid. An error message explains what is wrong. | Confirmed | Implementation |
 | CHAR-03 | The character name is shown at the table, on the scoreboard, and on the home screen. | Confirmed | Brief |
 | CHAR-04 | The player can edit the character name and avatar later from the home screen. Cancel keeps the old values. | Confirmed | Implementation |
@@ -77,6 +77,17 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | AX-15 | Text is at least 14 sp (labels were 12-13 sp). | Confirmed | UX-04 |
 | AX-16 | Error and warning text on the dark background uses a lighter red that passes 4.5:1 contrast. Card suit colours are unchanged. | Confirmed | AX-05 |
 | AX-17 | Icon buttons (close, sound, gear) are at least 48 × 48 dp. | Confirmed | AX-06 |
+| AX-18 | The close button on the table is labelled "Leave match". A Help (?) button on the table opens the rules. | Confirmed | Review deck, slides 4, 5, 14 |
+| AX-19 | When a hand changes type while arranging, screen readers announce it: "Hand 1 is now a Pair." | Confirmed | Review deck, slides 5, 14 |
+| AX-20 | The input border is #8A9A93 (6.3:1, WCAG 1.4.11). | Confirmed | Review deck, slides 4, 13 |
+| AX-21 | Screen readers hear the spoken card name (for example "Queen of spades") and the hand strength ("Strength 3 of 5"). | Confirmed | Review deck, slide 14 |
+| TIMER-01 | "No timer" is the default. A timer of 45, 60, 90 or 120 seconds can be chosen in House rules. | Confirmed | Review deck, slides 4 and 9 |
+| TIMER-02 | With a timer, the player can pause and resume it by tapping the timer. Paused, the cards cannot be moved. | Confirmed | Review deck, slides 4 and 9 |
+| ARR-11 | Undo reverts the last swap or Suggest while arranging. | Confirmed | Review deck, slides 10 and 15 |
+| ARR-12 | A status line says what is selected: "Selected: Queen of spades. Tap another card to swap." | Confirmed | Review deck, slides 10 and 14 |
+| ARR-13 | Each hand shows a five-segment strength meter under its hand type. | Confirmed | Review deck, slides 10 and 15 |
+| RES-01 | Round and match results are sorted by standing, with positions, a "Leader" badge, and a plain summary ("You're 2nd, 2 points behind the leader."). | Confirmed | Review deck, slides 12 and 15 |
+| LOW-01 | Not built yet (review deck, slide 15, Low): four-colour deck, larger cards, haptics, auto-advance hands, personal round recap and tips, home screen summary of house rules. | Open | Review deck, slide 15 |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |

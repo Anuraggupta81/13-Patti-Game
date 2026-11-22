@@ -31,3 +31,14 @@ export function isRed(card: Card): boolean {
 }
 
 export const SUIT_SYMBOL: Record<Suit, string> = { S: '♠', H: '♥', D: '♦', C: '♣' };
+
+const SUIT_WORD: Record<Suit, string> = { S: 'spades', H: 'hearts', D: 'diamonds', C: 'clubs' };
+const RANK_WORD: Record<number, string> = {
+  2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six', 7: 'Seven', 8: 'Eight', 9: 'Nine', 10: 'Ten',
+  11: 'Jack', 12: 'Queen', 13: 'King', 14: 'Ace',
+};
+
+/** Spoken name of a card, for screen readers, e.g. "Queen of spades". */
+export function cardName(card: Card): string {
+  return `${RANK_WORD[card.rank] ?? card.rank} of ${SUIT_WORD[card.suit]}`;
+}

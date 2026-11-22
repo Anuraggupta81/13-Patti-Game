@@ -76,7 +76,8 @@ export function setHumanLayout(state: MatchState, layout: Card[]): MatchState {
 
 /** Advance the arrange timer by `seconds`. Returns the state and whether time ran out. */
 export function tickTimer(state: MatchState, seconds: number): { state: MatchState; expired: boolean } {
-  if (state.phase !== 'arrange') return { state, expired: false };
+  // No timer (arrangeSeconds 0) never runs out.
+  if (state.phase !== 'arrange' || state.rules.arrangeSeconds === 0) return { state, expired: false };
   const secondsLeft = Math.max(0, state.secondsLeft - seconds);
   return { state: { ...state, secondsLeft }, expired: secondsLeft === 0 };
 }

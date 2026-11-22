@@ -1,9 +1,11 @@
 import {
   handAnnouncement,
+  handTypeAnnouncement,
   roundAnnouncement,
   swapAnnouncement,
   timerAnnouncement,
   TIMER_WARNINGS,
+  undoAnnouncement,
 } from './accessibility';
 
 describe('timer announcements (AX-10)', () => {
@@ -35,6 +37,17 @@ describe('hand announcements (AX-12)', () => {
 
   it('handles no winner', () => {
     expect(handAnnouncement(4, 4, [])).toBe('Hand 4 of 4. No winner.');
+  });
+});
+
+describe('hand type and undo announcements', () => {
+  it('announces a change of hand type', () => {
+    expect(handTypeAnnouncement(1, 'Pair')).toBe('Hand 1 is now a Pair.');
+    expect(handTypeAnnouncement(3, 'High Card')).toBe('Hand 3 is now a High Card.');
+  });
+
+  it('announces an undo', () => {
+    expect(undoAnnouncement()).toBe('Last change undone.');
   });
 });
 

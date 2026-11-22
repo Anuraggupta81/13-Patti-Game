@@ -30,3 +30,12 @@ export function roundAnnouncement(round: number): string {
 export function swapAnnouncement(): string {
   return 'Cards swapped.';
 }
+
+/** A hand's type changed while arranging, e.g. "Hand 1 is now a Pair." */
+export function handTypeAnnouncement(hand: number, label: string): string {
+  return `Hand ${hand} is now a ${label}.`;
+}
+
+export function undoAnnouncement(): string {
+  return 'Last change undone.';
+}

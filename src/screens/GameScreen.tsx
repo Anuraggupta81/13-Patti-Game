@@ -1,5 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { timerAnnouncement, handAnnouncement, roundAnnouncement, swapAnnouncement } from '../accessibility';
+import {
+  timerAnnouncement,
+  handAnnouncement,
+  handTypeAnnouncement,
+  roundAnnouncement,
+  swapAnnouncement,
+  undoAnnouncement,
+} from '../accessibility';
+import { cardName } from '../game/cards';
+import { playerSummary, standings } from '../results';
+import { RULES_TEXT } from '../rulesText';
+import { StrengthMeter } from '../components/StrengthMeter';
 import {
   AccessibilityInfo,
   AppState,
@@ -48,8 +59,13 @@ function handOf(layout: Card[], h: number): Card[] {
 export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, onFinish }: Props) {
   const [match, setMatch] = useState<MatchState>(initialMatch);
   const [selected, setSelected] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const undoRef = useRef<Card[][]>([]);
+  const prevHandTypes = useRef<number[] | null>(null);
   const matchRef = useRef(match);
   matchRef.current = match;
+  const timed = match.rules.arrangeSeconds > 0;
 
   // Save whenever the game meaningfully changes (not on every timer tick).
   useEffect(() => {
@@ -66,29 +82,50 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
     return () => sub.remove();
   }, []);
 
-  // Arrange countdown.
+  // Arrange countdown. Off when there is no timer, and paused on request.
   useEffect(() => {
-    if (match.phase !== 'arrange') return;
+    if (match.phase !== 'arrange' || !timed || paused) return;
     const id = setInterval(() => {
       setMatch((m) => (m.phase === 'arrange' ? tickTimer(m, 1).state : m));
     }, 1000);
     return () => clearInterval(id);
-  }, [match.phase, match.round]);
+  }, [match.phase, match.round, timed, paused]);
 
   // Time up: lock whatever the human has arranged.
   useEffect(() => {
-    if (match.phase === 'arrange' && match.secondsLeft === 0) {
+    if (match.phase === 'arrange' && timed && match.secondsLeft === 0) {
       setSelected(null);
       setMatch((m) => lockArrangement(m));
     }
-  }, [match.phase, match.secondsLeft]);
+  }, [match.phase, match.secondsLeft, timed]);
 
-  // Screen-reader announcements (AX-10, AX-12).
+  // Screen-reader announcements (AX-10).
   useEffect(() => {
-    if (match.phase !== 'arrange') return;
+    if (match.phase !== 'arrange' || !timed) return;
     const msg = timerAnnouncement(match.secondsLeft);
     if (msg) AccessibilityInfo.announceForAccessibility(msg);
-  }, [match.phase, match.secondsLeft]);
+  }, [match.phase, match.secondsLeft, timed]);
+
+  // Announce when a hand changes type while arranging (AX, slide 14).
+  // The undo history is only kept while arranging.
+  useEffect(() => {
+    if (match.phase !== 'arrange') {
+      prevHandTypes.current = null;
+      undoRef.current = [];
+      return;
+    }
+    const layout = match.layouts[HUMAN_SEAT] ?? [];
+    const types = [0, 1, 2, 3].map((h) => scoreHand(handOf(layout, h)).category);
+    const prev = prevHandTypes.current;
+    if (prev) {
+      types.forEach((t, h) => {
+        if (t !== prev[h]) {
+          AccessibilityInfo.announceForAccessibility(handTypeAnnouncement(h + 1, CATEGORY_LABEL[t]));
+        }
+      });
+    }
+    prevHandTypes.current = types;
+  }, [match.phase, match.layouts]);
 
   useEffect(() => {
     if (match.revealed === 0 || match.phase === 'arrange') return;
@@ -108,11 +145,18 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
   const seats = match.seats;
   const isHumanArranging = match.phase === 'arrange';
 
+  /** Remember the human's layout before a change, so Undo can restore it. */
+  function rememberForUndo() {
+    undoRef.current.push([...(matchRef.current.layouts[HUMAN_SEAT] ?? [])]);
+  }
+
   function onTapCard(i: number) {
+    if (paused) return;
     if (selected === null) setSelected(i);
     else if (selected === i) setSelected(null);
     else {
       const a = selected;
+      rememberForUndo();
       setSelected(null);
       setMatch((m) => swapCards(m, a, i));
       AccessibilityInfo.announceForAccessibility(swapAnnouncement());
@@ -121,8 +165,17 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
 
   function onSuggest() {
     const layout = orderLayout(arrangeCards(matchRef.current.layouts[HUMAN_SEAT], 'hard'));
+    rememberForUndo();
     setSelected(null);
     setMatch((m) => setHumanLayout(m, layout));
+  }
+
+  function onUndo() {
+    const previous = undoRef.current.pop();
+    if (!previous) return;
+    setSelected(null);
+    setMatch((m) => setHumanLayout(m, previous));
+    AccessibilityInfo.announceForAccessibility(undoAnnouncement());
   }
 
   function onShowCards() {
@@ -153,13 +206,22 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
   });
 
   const humanHands = [0, 1, 2, 3].map((h) => handOf(match.layouts[HUMAN_SEAT] ?? [], h));
+
+  // Status line: says what is selected, or how to play (AX, slide 10).
+  const selectedCard =
+    selected !== null ? match.layouts[HUMAN_SEAT]?.[selected] : undefined;
+  const statusText = paused
+    ? 'Paused. Tap the timer to continue.'
+    : selectedCard
+      ? `Selected: ${cardName(selectedCard)}. Tap another card to swap.`
+      : 'Tap a card, then tap another card to swap them';
   const humanSpare = match.layouts[HUMAN_SEAT]?.[SPARE_INDEX];
 
   return (
     <View style={styles.flex}>
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.iconButton} onPress={onClose} accessibilityLabel="Close game">
+        <TouchableOpacity style={styles.iconButton} onPress={onClose} accessibilityLabel="Leave match">
           <Text style={styles.iconText}>✕</Text>
         </TouchableOpacity>
         <View style={styles.roundBox}>
@@ -178,9 +240,27 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
         >
           <Text style={styles.iconText}>{soundOn ? '🔊' : '🔇'}</Text>
         </TouchableOpacity>
-        {isHumanArranging ? (
-          <View style={styles.timer}>
-            <Text style={styles.timerText}>⏱ {match.secondsLeft}s</Text>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => setShowHelp(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Help"
+          accessibilityHint="Shows the rules"
+        >
+          <Text style={styles.iconText}>?</Text>
+        </TouchableOpacity>
+        {isHumanArranging && timed ? (
+          <TouchableOpacity
+            style={styles.timer}
+            onPress={() => setPaused((p) => !p)}
+            accessibilityRole="button"
+            accessibilityLabel={paused ? 'Resume timer' : 'Pause timer'}
+          >
+            <Text style={styles.timerText}>{paused ? '▶ Paused' : `⏱ ${match.secondsLeft}s`}</Text>
+          </TouchableOpacity>
+        ) : isHumanArranging ? (
+          <View style={styles.timer} accessible accessibilityLabel="No timer">
+            <Text style={styles.timerText}>No timer</Text>
           </View>
         ) : (
           <View style={styles.timerPlaceholder} />
@@ -206,7 +286,9 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
       <ScrollView contentContainerStyle={styles.body}>
         {isHumanArranging ? (
           <>
-            <Text style={styles.hint}>Tap a card, then tap another card to swap them</Text>
+            <Text style={styles.hint} accessibilityLiveRegion="polite">
+              {statusText}
+            </Text>
             {humanHands.map((hand, h) => {
               const score = scoreHand(hand);
               return (
@@ -216,6 +298,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
                     <View style={styles.tag}>
                       <Text style={styles.tagText}>{CATEGORY_LABEL[score.category]}</Text>
                     </View>
+                    <StrengthMeter category={score.category} />
                   </View>
                   <View style={styles.handCards}>
                     {hand.map((card, k) => {
@@ -260,6 +343,16 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
           <TouchableOpacity style={styles.secondaryButton} onPress={onSuggest} accessibilityRole="button">
             <Text style={styles.secondaryText}>✨ Suggest</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.secondaryButton, undoRef.current.length === 0 && styles.disabled]}
+            onPress={onUndo}
+            disabled={undoRef.current.length === 0}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: undoRef.current.length === 0 }}
+            accessibilityHint="Reverts the last swap or suggestion"
+          >
+            <Text style={styles.secondaryText}>↶ Undo</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.primaryButton} onPress={onShowCards} accessibilityRole="button">
             <Text style={styles.primaryText}>Show cards</Text>
           </TouchableOpacity>
@@ -279,12 +372,17 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
         <View style={styles.sheetWrap}>
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>Round {match.round} done</Text>
-            {seats.map((seat, i) => (
-              <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
-                <Text style={styles.resultName}>{seat.name}</Text>
-                <Text style={styles.resultGain}>+{match.roundPoints[i]}</Text>
-                <Text style={styles.resultTotal}>{match.totalPoints[i]}</Text>
+            <Text style={styles.summary}>{playerSummary(match)}</Text>
+            {standings(match).map((row) => (
+              <View key={row.seat} style={styles.resultRow}>
+                <Text style={styles.position}>{row.position}</Text>
+                <AvatarBadge avatar={avatarById(seats[row.seat].avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>
+                  {row.name}
+                  {row.position === 1 && row.behind === 0 ? '  · Leader' : ''}
+                </Text>
+                <Text style={styles.resultGain}>+{match.roundPoints[row.seat]}</Text>
+                <Text style={styles.resultTotal}>{row.points}</Text>
               </View>
             ))}
             <TouchableOpacity style={styles.fullButton} onPress={onDealNext} accessibilityRole="button">
@@ -301,11 +399,16 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
         <Pressable style={styles.sheetWrap}>
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>{resultHeadline(match)}</Text>
-            {seats.map((seat, i) => (
-              <View key={i} style={styles.resultRow}>
-                <AvatarBadge avatar={avatarById(seat.avatarId)} size={40} showName={false} />
-                <Text style={styles.resultName}>{seat.name}</Text>
-                <Text style={styles.resultTotal}>{match.totalPoints[i]} pts</Text>
+            <Text style={styles.summary}>{playerSummary(match)}</Text>
+            {standings(match).map((row) => (
+              <View key={row.seat} style={styles.resultRow}>
+                <Text style={styles.position}>{row.position}</Text>
+                <AvatarBadge avatar={avatarById(seats[row.seat].avatarId)} size={40} showName={false} />
+                <Text style={styles.resultName}>
+                  {row.name}
+                  {row.position === 1 && row.behind === 0 ? '  · Leader' : ''}
+                </Text>
+                <Text style={styles.resultTotal}>{row.points} pts</Text>
               </View>
             ))}
             <TouchableOpacity style={styles.fullButton} onPress={() => onFinish(match)} accessibilityRole="button">
@@ -313,6 +416,23 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
             </TouchableOpacity>
           </View>
         </Pressable>
+      </Modal>
+
+      {/* Help: the rules, from the table (consistent Help entry, slide 15) */}
+      <Modal visible={showHelp} transparent animationType="slide" onRequestClose={() => setShowHelp(false)}>
+        <View style={styles.sheetWrap}>
+          <View style={[styles.sheet, { maxHeight: '85%' }]}>
+            <Text style={styles.sheetTitle} accessibilityRole="header">
+              How to play
+            </Text>
+            <ScrollView>
+              <Text style={styles.helpText}>{RULES_TEXT}</Text>
+            </ScrollView>
+            <TouchableOpacity style={styles.fullButton} onPress={() => setShowHelp(false)} accessibilityRole="button">
+              <Text style={styles.primaryText}>Back to the table</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
@@ -478,6 +598,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryText: { color: colors.accentText, fontWeight: '800', fontSize: 16 },
+  disabled: { opacity: 0.4 },
+  summary: { color: colors.textMuted, fontSize: 15, lineHeight: 21, marginBottom: 12 },
+  position: { color: colors.textMuted, fontWeight: '800', fontSize: 16, width: 22 },
+  helpText: { color: colors.text, lineHeight: 22, fontSize: 15, paddingVertical: 8 },
   secondaryButton: {
     flex: 1,
     backgroundColor: colors.surfaceAlt,
