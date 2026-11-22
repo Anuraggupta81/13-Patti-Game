@@ -1,6 +1,6 @@
 import { arrangeCards, layoutStrength } from './arrange';
 import { makeDeck } from './cards';
-import { CATEGORY, compareScores, scoreHand } from './evaluate';
+import { CATEGORY, compareScores, scoreHand, strengthValue } from './evaluate';
 import {
   createMatch,
   handWinnersFor,
@@ -171,6 +171,32 @@ describe('match flow', () => {
     const suggested = arrangeCards(state.layouts[0], 'hard', seeded(4));
     const next = setHumanLayout(state, suggested);
     expect(next.layouts[0]).toEqual(suggested);
+  });
+});
+
+describe('highest group goes first (rule from the player)', () => {
+  it('orders the player hands from highest to lowest when locked', () => {
+    let state = createMatch(DEFAULT_RULES, SEATS, seeded(21));
+    // Put the weakest hand (high card) first on purpose.
+    const layout = state.layouts[0];
+    const weakestFirst = [...layout.slice(9, 12), ...layout.slice(0, 9), layout[12]];
+    state = setHumanLayout(state, weakestFirst);
+    state = lockArrangement(state);
+    const strengths = [0, 1, 2, 3].map((h) => {
+      const hand = state.layouts[0].slice(h * 3, h * 3 + 3);
+      return strengthValue(scoreHand(hand));
+    });
+    expect(strengths).toEqual([...strengths].sort((a, b) => b - a));
+  });
+
+  it('orders every computer player the same way when dealt', () => {
+    const state = createMatch(DEFAULT_RULES, SEATS, seeded(4));
+    for (let seat = 1; seat < 4; seat++) {
+      const strengths = [0, 1, 2, 3].map((h) =>
+        strengthValue(scoreHand(state.layouts[seat].slice(h * 3, h * 3 + 3))),
+      );
+      expect(strengths).toEqual([...strengths].sort((a, b) => b - a));
+    }
   });
 });
 

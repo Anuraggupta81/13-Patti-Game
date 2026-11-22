@@ -140,6 +140,7 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | ARR-04 | When the timer reaches zero, the player's current arrangement is locked as it is. It is not rearranged automatically. | Assumed | Implementation; confirm |
 | ARR-05 | "Suggest" rearranges the player's cards into the strongest hands the app can find. It does not lock them. | Confirmed | Mock-up |
 | ARR-10 | After Suggest, the hands are shown from strongest (Hand 1) to weakest (Hand 4). Inside each hand the cards go from highest to lowest. The spare stays last. | Confirmed | Brief 22 Nov |
+| ORDER-02 | Each side puts its groups in order, highest first and lowest last. The player is ordered when cards are locked (Show cards or timeout). Computer hands are ordered when dealt. Hands are compared position by position. | Confirmed | Player rules text, 22 Nov |
 | ARR-06 | "Show cards" locks the arrangement and starts the reveal. | Confirmed | Mock-up |
 | ARR-07 | Each hand shows its category label (for example "Pair" or "High Card") while arranging. | Confirmed | Mock-up |
 | ARR-08 | The spare card is shown with the note "Breaks ties". | Confirmed | Mock-up |
@@ -151,18 +152,18 @@ Strongest first. Each category is listed with its tie-break rule.
 
 | ID | Category | Meaning | Tie-break | Status |
 |----|----------|---------|-----------|--------|
-| RANK-01 | Trail | Three cards of the same rank | Rank | Assumed |
-| RANK-02 | Pure sequence | Three cards in order, all the same suit | Top card | Assumed |
-| RANK-03 | Sequence | Three cards in order, mixed suits | Top card | Assumed |
-| RANK-04 | Color | Three cards of the same suit, not in order | Highest card, then next | Assumed |
-| RANK-05 | Pair | Two cards of the same rank | Pair rank, then the odd card | Assumed |
-| RANK-06 | High card | Anything else | Highest card, then next | Assumed |
+| RANK-01 | Trail | Three cards of the same rank | Rank | Confirmed | Player rules text, 22 Nov |
+| RANK-02 | Pure sequence | Three cards in order, all the same suit | Top card | Confirmed | Player rules text, 22 Nov |
+| RANK-03 | Sequence | Three cards in order, mixed suits | Top card | Confirmed | Player rules text, 22 Nov |
+| RANK-04 | Color | Three cards of the same suit, not in order | Highest card, then next | Confirmed | Player rules text, 22 Nov |
+| RANK-05 | Pair | Two cards of the same rank | Pair rank, then the odd card | Confirmed | Player rules text, 22 Nov |
+| RANK-06 | High card | Anything else | Highest card, then next | Confirmed | Player rules text, 22 Nov |
 
 | ID | Rule | Status |
 |----|------|--------|
-| RANK-07 | Ace is high. Q-K-A is the highest sequence. | Assumed |
-| RANK-08 | A-2-3 is the lowest sequence. K-A-2 is not a sequence. | Assumed |
-| RANK-09 | Hands are compared by category first, then by tie-break. | Assumed |
+| RANK-07 | Ace is high. Q-K-A is the highest sequence. | Confirmed | Player rules text, 22 Nov |
+| RANK-08 | A-2-3 is the lowest sequence. K-A-2 is not a sequence. | Confirmed | Player rules text, 22 Nov |
+| RANK-09 | Hands are compared by category first, then by tie-break. | Confirmed | Player rules text, 22 Nov |
 
 ### 4.4 Reveal and scoring
 
@@ -354,14 +355,14 @@ Feature: Resume an unsaved game
 
 | # | Question | Affects |
 |---|----------|---------|
-| Q-01 | OPEN, needs your input: paste the official rules text. BGG and wikiHow block automated reading, so the rules in the app are the working version. | GAME-*, RANK-*, SCORE-* |
+| Q-01 | Resolved 22 Nov: the player supplied the rules text. Hand ranking, sequences, pairs, tie-breaks and the highest-group-first rule match it (ORDER-02). Q-02 and Q-03 agree with it. | RANK-*, ORDER-02 |
 | Q-02 | Decided 22 Nov: a Trail ranks above a Pure sequence (the standard order). Kept as built. | RANK-01, RANK-02 |
 | Q-03 | Decided 22 Nov: A-2-3 is the lowest sequence and K-A-2 is not a sequence. Kept as built. | RANK-07, RANK-08 |
 | Q-04 | Decided 22 Nov: when two hands are fully equal, both players get the point. Kept as built. | SCORE-04 |
 | Q-05 | Decided 22 Nov: when the arrange timer runs out, the cards stay as they are. Kept as built. | ARR-04 |
 | Q-06 | Resolved 22 Nov: the player can reset progress from Settings (RESET-01 to RESET-04). | DB-09 |
 | Q-07 | Decided 22 Nov: avatars unlock at 3, 6, 9, 12, 15 and 18 stars, as the mock-up suggests. Kept as built. | STAR-03 |
-| Q-08 | OPEN, needs your answer: the Android package name for release (for example com.vgtech.thirteenpatti). It cannot be changed after the app is published on Google Play. | SCOPE-01 |
+| Q-08 | Resolved 22 Nov: Android package name is com.vgtech.thirteenpatti. | SCOPE-01 |
 | Q-09 | OPEN, needs your decision. The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
 | Q-10 | OPEN, needs your decision. The Terms say the game is only for Australia and India. The app does not check location, and adding a check would need a location permission that the Privacy Notice does not describe. | Terms s.2 |
 | Q-11 | Decided 22 Nov: the first-launch order is Privacy Notice and Terms, then age check, then character setup. Kept as built. | ORDER-01 |
