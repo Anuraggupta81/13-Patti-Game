@@ -103,11 +103,8 @@ export function handWinnersFor(layouts: Card[][], h: number): number[] {
     if (cmp > 0) best = [i];
     else if (cmp === 0) best.push(i);
   }
-  if (best.length === 1) return best;
-  // Spare card breaks ties between equal hands.
-  const spareRank = (seat: number) => layouts[seat][SPARE_INDEX].rank;
-  const top = Math.max(...best.map(spareRank));
-  return best.filter((seat) => spareRank(seat) === top);
+  // Equal hands share the point. The spare card is not used in scoring.
+  return best;
 }
 
 /** Reveal the next hand and award its point(s). Finishes the round after the 4th hand. */

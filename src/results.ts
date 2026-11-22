@@ -56,7 +56,7 @@ export function roundRecap(match: MatchState, humanSeat = 0): { recap: string; t
       : won === 1
         ? 'Tip: your weakest hand lost. Use Undo to compare arrangements before you show.'
         : won === 2
-          ? 'Tip: a higher spare card breaks ties, so keep your best spare in mind.'
+          ? 'Tip: check your weakest hand. Use Suggest to compare arrangements.'
           : 'Great round. Keep the same strategy.';
   return { recap, tip };
 }

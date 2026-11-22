@@ -143,7 +143,7 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | ORDER-02 | Each side puts its groups in order, highest first and lowest last. The player is ordered when cards are locked (Show cards or timeout). Computer hands are ordered when dealt. Hands are compared position by position. | Confirmed | Player rules text, 22 Nov |
 | ARR-06 | "Show cards" locks the arrangement and starts the reveal. | Confirmed | Mock-up |
 | ARR-07 | Each hand shows its category label (for example "Pair" or "High Card") while arranging. | Confirmed | Mock-up |
-| ARR-08 | The spare card is shown with the note "Breaks ties". | Confirmed | Mock-up |
+| ARR-08 | The spare card is shown last, labelled "Not used in scoring". It is not used in scoring. | Confirmed | Player decision, 22 Nov |
 | ARR-09 | Computer players arrange their cards automatically when the round is dealt. | Confirmed | Implementation |
 
 ### 4.3 Hand ranking
@@ -171,8 +171,8 @@ Strongest first. Each category is listed with its tie-break rule.
 |----|------|--------|--------|
 | SCORE-01 | Hands are revealed one at a time, from Hand 1 to Hand 4. | Confirmed | Mock-up |
 | SCORE-02 | In each hand position, the strongest hand wins 1 point. | Confirmed | Mock-up (round summary) |
-| SCORE-03 | If two hands are equal in rank and tie-break, the spare card breaks the tie. The higher spare wins. | Confirmed | Mock-up |
-| SCORE-04 | If two hands are still equal after the spare, both players win the point. | Assumed | Implementation |
+| SCORE-03 | Retired 22 Nov: the spare card no longer breaks ties. Equal hands share the point (SCORE-04). | Retired | Player decision, 22 Nov |
+| SCORE-04 | If two hands are exactly equal, both players win the point. | Confirmed | Player decision, 22 Nov |
 | SCORE-05 | A player who wins all four hands in a round scores a **sweep**. They get the sweep bonus from house rules. | Confirmed | Mock-up |
 | SCORE-06 | The sweep bonus is Off, +3, or +5. The default is +3. | Confirmed | Mock-up |
 | SCORE-07 | The round summary shows each player's points for the round and their total. | Confirmed | Mock-up |

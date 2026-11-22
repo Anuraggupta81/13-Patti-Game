@@ -344,7 +344,7 @@ export function GameScreen({
               <View style={[styles.handRow, styles.spareRow]}>
                 <View style={styles.handInfo}>
                   <Text style={styles.handTitle}>Spare</Text>
-                  <Text style={styles.spareSub}>Breaks ties</Text>
+                  <Text style={styles.spareSub}>Not used in scoring</Text>
                 </View>
                 <CardView
                   card={humanSpare}
