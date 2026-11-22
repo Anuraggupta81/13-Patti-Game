@@ -1,11 +1,13 @@
 import { LEGAL_VERSION, PRIVACY_NOTICE, TERMS_OF_USE } from './content';
 import {
   Consent,
+  isBlockedAsMinor,
   needsAgeConfirmation,
   needsLegalAcceptance,
   NO_CONSENT,
   withAdultConfirmed,
   withLegalAccepted,
+  withUnderAge,
 } from './consent';
 
 const NOW = new Date('2026-11-22T08:00:00.000Z');
@@ -24,7 +26,7 @@ describe('legal acceptance is asked once per version', () => {
   });
 
   it('is needed again when the stored version is older', () => {
-    const old: Consent = { legalVersion: '0.9', legalAcceptedAt: NOW.toISOString(), over18ConfirmedAt: NOW.toISOString() };
+    const old: Consent = { legalVersion: '0.9', legalAcceptedAt: NOW.toISOString(), over18ConfirmedAt: NOW.toISOString(), underAgeAt: null };
     expect(needsLegalAcceptance(old)).toBe(true);
   });
 });
@@ -44,6 +46,19 @@ describe('over-18 confirmation is asked once', () => {
   it('keeps the legal acceptance when the age is confirmed', () => {
     const both = withAdultConfirmed(withLegalAccepted(null, NOW), NOW);
     expect(needsLegalAcceptance(both)).toBe(false);
+  });
+});
+
+describe('an under-18 answer is remembered (Q-12)', () => {
+  it('blocks the app on later launches', () => {
+    const minor = withUnderAge(null, NOW);
+    expect(isBlockedAsMinor(minor)).toBe(true);
+    expect(minor.underAgeAt).toBe(NOW.toISOString());
+  });
+
+  it('does not block adults or new devices', () => {
+    expect(isBlockedAsMinor(null)).toBe(false);
+    expect(isBlockedAsMinor(withAdultConfirmed(null, NOW))).toBe(false);
   });
 });
 

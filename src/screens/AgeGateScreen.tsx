@@ -7,13 +7,22 @@ export const CLOSE_AFTER_SECONDS = 3;
 
 interface Props {
   onOver18: () => void;
+  /** Called when the player says they are under 18, so the answer is remembered. */
+  onUnder18?: () => void;
+  /** The player already said they are under 18 on an earlier launch. */
+  alreadyUnder18?: boolean;
   /** Closes the app. Injected so the behaviour can be tested. */
   onExit?: () => void;
 }
 
 /** First-launch screen: the player confirms they are 18 or over. */
-export function AgeGateScreen({ onOver18, onExit = () => BackHandler.exitApp() }: Props) {
-  const [underAge, setUnderAge] = useState(false);
+export function AgeGateScreen({
+  onOver18,
+  onUnder18,
+  alreadyUnder18 = false,
+  onExit = () => BackHandler.exitApp(),
+}: Props) {
+  const [underAge, setUnderAge] = useState(alreadyUnder18);
   const [secondsLeft, setSecondsLeft] = useState(CLOSE_AFTER_SECONDS);
 
   // Under 18: count down, then close the app.
@@ -62,7 +71,10 @@ export function AgeGateScreen({ onOver18, onExit = () => BackHandler.exitApp() }
 
       <TouchableOpacity
         style={styles.secondary}
-        onPress={() => setUnderAge(true)}
+        onPress={() => {
+          onUnder18?.();
+          setUnderAge(true);
+        }}
         accessibilityRole="button"
         accessibilityLabel="No, I am under 18"
       >

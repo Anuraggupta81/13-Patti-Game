@@ -2,7 +2,7 @@ import { cardName } from './game/cards';
 import { createMatch, tickTimer } from './game/engine';
 import { DEFAULT_RULES, MatchState, PlayerSeat } from './game/types';
 import { nicknameOrDefault, DEFAULT_NICKNAME } from './characterName';
-import { playerSummary, standings } from './results';
+import { playerSummary, roundRecap, rulesSummary, standings } from './results';
 
 const SEATS: PlayerSeat[] = [
   { name: 'You', avatarId: 'fox', isHuman: true },
@@ -49,6 +49,36 @@ describe('nickname is optional', () => {
   it('uses the default when left blank', () => {
     expect(nicknameOrDefault('')).toBe(DEFAULT_NICKNAME);
     expect(nicknameOrDefault('   ')).toBe('Player');
+  });
+});
+
+describe('round recap', () => {
+  function withWins(wins: number): MatchState {
+    const m = matchWithPoints([0, 0, 0, 0]);
+    const winners = [0, 1, 2, 3].map((h) => (h < wins ? [0] : [1]));
+    return { ...m, handWinners: winners };
+  }
+
+  it('counts the hands the player won', () => {
+    expect(roundRecap(withWins(3)).recap).toBe('You won 3 of 4 hands this round.');
+    expect(roundRecap(withWins(0)).recap).toBe('You won 0 of 4 hands this round.');
+  });
+
+  it('gives a tip that matches the result', () => {
+    expect(roundRecap(withWins(0)).tip).toContain('Suggest');
+    expect(roundRecap(withWins(4)).tip).toBe('Great round. Keep the same strategy.');
+  });
+});
+
+describe('house rules summary', () => {
+  it('describes the default rules', () => {
+    expect(rulesSummary(DEFAULT_RULES)).toBe('5 rounds · No timer · Sweep +3 · Medium');
+  });
+
+  it('describes a timed match with no sweep bonus', () => {
+    expect(rulesSummary({ rounds: 10, arrangeSeconds: 90, sweepBonus: 0, difficulty: 'hard' })).toBe(
+      '10 rounds · 90s to arrange · Sweep off · Hard',
+    );
   });
 });
 

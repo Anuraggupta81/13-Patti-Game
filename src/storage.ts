@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { avatarById, DEFAULT_AVATAR_ID, isAvatarUnlocked, resolveAvatarId } from './avatars';
 import { checkCharacterName } from './characterName';
 import type { Consent } from './legal/consent';
-import { MatchState } from './game/types';
+import { DEFAULT_RULES, HouseRules, MatchState } from './game/types';
 
 /**
  * Everything lives on the device. There is no login, no name, no PIN and no
@@ -23,6 +23,16 @@ export interface Profile {
   avatarId: string;
   /** Sound effects on or off. Defaults to on. */
   soundOn: boolean;
+  /** Four-colour deck: spades black, hearts red, diamonds blue, clubs green. */
+  fourColour: boolean;
+  /** Larger cards on the table. */
+  largeCards: boolean;
+  /** Vibration on swaps and winning hands. */
+  hapticsOn: boolean;
+  /** Reveal the next hand automatically after a short pause. */
+  autoAdvance: boolean;
+  /** House rules used for the last match, shown on the home screen. */
+  lastRules: HouseRules;
   played: number;
   won: number;
   totalPoints: number;
@@ -49,6 +59,7 @@ export async function loadConsent(): Promise<Consent | null> {
     legalVersion: text(stored.legalVersion),
     legalAcceptedAt: text(stored.legalAcceptedAt),
     over18ConfirmedAt: text(stored.over18ConfirmedAt),
+    underAgeAt: text(stored.underAgeAt),
   };
 }
 
@@ -61,6 +72,11 @@ export const DEFAULT_PROFILE: Profile = {
   characterName: '',
   avatarId: DEFAULT_AVATAR_ID,
   soundOn: true,
+  fourColour: false,
+  largeCards: false,
+  hapticsOn: true,
+  autoAdvance: false,
+  lastRules: DEFAULT_RULES,
   played: 0,
   won: 0,
   totalPoints: 0,
@@ -98,6 +114,19 @@ async function removeKey(key: string): Promise<void> {
 
 // ---- Device profile (progress only, no identity) ----
 
+/** Keeps only valid house-rule values; anything else falls back to the default. */
+export function sanitizeRules(stored: unknown): HouseRules {
+  const r = (stored && typeof stored === 'object' ? stored : {}) as Partial<Record<keyof HouseRules, unknown>>;
+  const pick = <T>(v: unknown, allowed: readonly T[], fallback: T): T =>
+    allowed.includes(v as T) ? (v as T) : fallback;
+  return {
+    rounds: pick(r.rounds, [3, 5, 7, 10] as const, DEFAULT_RULES.rounds),
+    arrangeSeconds: pick(r.arrangeSeconds, [0, 45, 60, 90, 120] as const, DEFAULT_RULES.arrangeSeconds),
+    sweepBonus: pick(r.sweepBonus, [0, 3, 5] as const, DEFAULT_RULES.sweepBonus),
+    difficulty: pick(r.difficulty, ['easy', 'medium', 'hard'] as const, DEFAULT_RULES.difficulty),
+  };
+}
+
 /**
  * Turns whatever was stored into a valid profile. Missing or wrong-typed fields
  * fall back to defaults. A saved avatar is kept only if it exists and is
@@ -112,6 +141,11 @@ export function sanitizeProfile(stored: unknown): Profile {
     characterName: checked && checked.ok ? checked.name : '',
     avatarId: DEFAULT_PROFILE.avatarId,
     soundOn: typeof s.soundOn === 'boolean' ? s.soundOn : true,
+    fourColour: s.fourColour === true,
+    largeCards: s.largeCards === true,
+    hapticsOn: typeof s.hapticsOn === 'boolean' ? s.hapticsOn : true,
+    autoAdvance: s.autoAdvance === true,
+    lastRules: sanitizeRules(s.lastRules),
     played: count(s.played),
     won: count(s.won),
     totalPoints: count(s.totalPoints),

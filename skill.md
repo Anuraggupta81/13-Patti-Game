@@ -87,7 +87,14 @@ Rule IDs never change once published. Retire a rule by setting its status to
 | ARR-12 | A status line says what is selected: "Selected: Queen of spades. Tap another card to swap." | Confirmed | Review deck, slides 10 and 14 |
 | ARR-13 | Each hand shows a five-segment strength meter under its hand type. | Confirmed | Review deck, slides 10 and 15 |
 | RES-01 | Round and match results are sorted by standing, with positions, a "Leader" badge, and a plain summary ("You're 2nd, 2 points behind the leader."). | Confirmed | Review deck, slides 12 and 15 |
-| LOW-01 | Not built yet (review deck, slide 15, Low): four-colour deck, larger cards, haptics, auto-advance hands, personal round recap and tips, home screen summary of house rules. | Open | Review deck, slide 15 |
+| LOW-01 | Built 22 Nov (review deck, slide 15, Low). See DISP-01, DISP-02, FEED-01, FEED-02, RECAP-01 and HOME-01. | Confirmed | Review deck, slide 15 |
+| DISP-01 | Settings > Four-colour cards: spades black, hearts red, diamonds blue, clubs green. Off by default. | Confirmed | Review deck, slides 13 and 14 |
+| DISP-02 | Settings > Larger cards: all cards 20% larger on the table. Off by default. | Confirmed | Review deck, slides 13 and 14 |
+| FEED-01 | Settings > Vibration on swaps and wins: a light tap on each swap, and a success buzz when the player wins a hand. On by default. | Confirmed | Review deck, slide 14 |
+| FEED-02 | Settings > Auto-advance hands: after a hand is revealed, the next one is revealed after 2.5 seconds. Off by default. The Next hand button still works. | Confirmed | Review deck, slides 11 and 14 |
+| RECAP-01 | The round result shows a personal recap ("You won 2 of 4 hands this round.") and one tip. | Confirmed | Review deck, slides 12 and 15 |
+| HOME-01 | The home screen shows the last-used house rules in one line ("5 rounds · No timer · Sweep +3 · Medium"). | Confirmed | Review deck, slide 15 |
+| SET-02 | Settings lists Sound, Four-colour cards, Larger cards, Vibration and Auto-advance, each as a labelled switch. | Confirmed | Review deck, slide 14 |
 | AUTH-01 | Retired: name and PIN sign-in removed. See PRIV-01. | Retired | Brief change |
 | AUTH-02 | Retired: account creation removed. See PRIV-02. | Retired | Brief change |
 | AUTH-03 | Retired: PIN check removed. See PRIV-01. | Retired | Brief change |
@@ -108,7 +115,7 @@ Source: `13_Patti_Privacy_Notice.pdf` and `13_Patti_Terms_of_Use.pdf` (Version 1
 | AGE-01 | After the legal confirmation, the second screen asks "Are you 18 or over?" with two buttons: "I am Over 18" and "No, I am under 18". | Confirmed | Brief |
 | AGE-02 | Choosing "I am Over 18" is stored on the device and the player moves on to character setup. The question is not asked again. | Confirmed | Brief |
 | AGE-03 | Choosing "No, I am under 18" shows "Minors are not allowed to play the game." and a countdown. The app closes after 3 seconds. | Confirmed | Brief |
-| AGE-04 | The under-18 answer is not stored. The question is asked again on the next launch. | Assumed | Implementation |
+| AGE-04 | An under-18 answer is remembered on the device (Q-12, decided 22 Nov). The app opens at the minors message on every later launch and closes after 3 seconds. | Confirmed | Q-12 decision |
 | ORDER-01 | First-launch order: Privacy Notice and Terms, then the age check, then character setup, then home. Each step is shown only if it has not been completed. | Assumed | Brief (order implied); confirm |
 
 ## 4. Game rules
@@ -347,18 +354,18 @@ Feature: Resume an unsaved game
 
 | # | Question | Affects |
 |---|----------|---------|
-| Q-01 | Confirm the official rules from the BGG thread or wikiHow page. Both were blocked during the build. | GAME-*, RANK-*, SCORE-* |
-| Q-02 | Does a Trail rank above a Pure sequence? (Current: yes.) | RANK-01, RANK-02 |
-| Q-03 | Is a Sequence (A-2-3) the lowest? Is K-A-2 a sequence? (Current: A-2-3 lowest, K-A-2 not a sequence.) | RANK-07, RANK-08 |
-| Q-04 | When two hands are fully equal, does the point go to both players or to none? (Current: both.) | SCORE-04 |
-| Q-05 | When the arrange timer runs out, should the app rearrange the cards or keep them as they are? (Current: keep.) | ARR-04 |
+| Q-01 | OPEN, needs your input: paste the official rules text. BGG and wikiHow block automated reading, so the rules in the app are the working version. | GAME-*, RANK-*, SCORE-* |
+| Q-02 | Decided 22 Nov: a Trail ranks above a Pure sequence (the standard order). Kept as built. | RANK-01, RANK-02 |
+| Q-03 | Decided 22 Nov: A-2-3 is the lowest sequence and K-A-2 is not a sequence. Kept as built. | RANK-07, RANK-08 |
+| Q-04 | Decided 22 Nov: when two hands are fully equal, both players get the point. Kept as built. | SCORE-04 |
+| Q-05 | Decided 22 Nov: when the arrange timer runs out, the cards stay as they are. Kept as built. | ARR-04 |
 | Q-06 | Resolved 22 Nov: the player can reset progress from Settings (RESET-01 to RESET-04). | DB-09 |
-| Q-07 | Should avatars unlock at 3, 6, 9… stars, as the mock-up suggests? | STAR-03 |
-| Q-08 | What is the Android package name for release? | SCOPE-01 |
-| Q-09 | The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
-| Q-10 | The documents say the game is only for Australia and India. The app does not check location. Should it? | Terms s.2 |
-| Q-11 | Is the first-launch order (legal, then age, then setup) right? | ORDER-01 |
-| Q-12 | Should the under-18 answer be remembered on the device, so the player is blocked on the next launch too? (Current: no.) | AGE-04 |
+| Q-07 | Decided 22 Nov: avatars unlock at 3, 6, 9, 12, 15 and 18 stars, as the mock-up suggests. Kept as built. | STAR-03 |
+| Q-08 | OPEN, needs your answer: the Android package name for release (for example com.vgtech.thirteenpatti). It cannot be changed after the app is published on Google Play. | SCOPE-01 |
+| Q-09 | OPEN, needs your decision. The Privacy Notice says the app shows Google AdMob ads, asks for ad consent, has a Settings menu, and does not ask for a name. The app has none of the ads or consent, has no Settings menu yet, and asks for a character name. Which should change: the documents or the app? | PRIV-01, CHAR-01, LEGAL-05 |
+| Q-10 | OPEN, needs your decision. The Terms say the game is only for Australia and India. The app does not check location, and adding a check would need a location permission that the Privacy Notice does not describe. | Terms s.2 |
+| Q-11 | Decided 22 Nov: the first-launch order is Privacy Notice and Terms, then age check, then character setup. Kept as built. | ORDER-01 |
+| Q-12 | Decided 22 Nov: yes. An under-18 answer is remembered on the device, and the app stays closed on later launches. Built. | AGE-04 |
 
 ## 11. Glossary
 

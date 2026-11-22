@@ -8,7 +8,8 @@ import { AvatarBadge } from '../components/AvatarBadge';
 import { ChoiceRow } from '../components/ChoiceRow';
 import { RULES_TEXT } from '../rulesText';
 import { LegalDocView } from '../components/LegalDocView';
-import { SettingsSheet } from '../components/SettingsSheet';
+import { PREFS, PrefKey, SettingsSheet } from '../components/SettingsSheet';
+import { rulesSummary } from '../results';
 import { LegalDocument, PRIVACY_NOTICE, TERMS_OF_USE } from '../legal/content';
 
 interface Props {
@@ -18,6 +19,7 @@ interface Props {
   soundOn: boolean;
   onToggleSound: (on: boolean) => void;
   onResetProgress: () => void;
+  onPref: (key: PrefKey, on: boolean) => void;
 }
 
 export function HomeScreen({
@@ -27,6 +29,7 @@ export function HomeScreen({
   soundOn,
   onToggleSound,
   onResetProgress,
+  onPref,
 }: Props) {
   const [showSettings, setShowSettings] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -83,6 +86,7 @@ export function HomeScreen({
         <Text style={styles.heroText}>
           You vs 3 cartoon rivals. Split 13 cards into four 3-card hands and win the show.
         </Text>
+        <Text style={styles.summaryLine}>House rules: {rulesSummary(profile.lastRules)}</Text>
         <TouchableOpacity
           style={styles.playButton}
           onPress={() => setShowHouse(true)}
@@ -152,6 +156,13 @@ export function HomeScreen({
         visible={showSettings}
         soundOn={soundOn}
         onToggleSound={onToggleSound}
+        values={{
+          fourColour: profile.fourColour,
+          largeCards: profile.largeCards,
+          hapticsOn: profile.hapticsOn,
+          autoAdvance: profile.autoAdvance,
+        }}
+        onPref={onPref}
         onClose={() => setShowSettings(false)}
         onEditCharacter={() => {
           setShowSettings(false);
@@ -328,6 +339,7 @@ const styles = StyleSheet.create({
   heroRank: { fontSize: 18, fontWeight: '800' },
   title: { color: colors.text, fontSize: 30, fontWeight: '800', marginTop: 4 },
   heroText: { color: colors.textMuted, textAlign: 'center', marginTop: 6, marginBottom: 16, lineHeight: 20 },
+  summaryLine: { color: colors.text, fontSize: 14, textAlign: 'center', marginTop: -4, marginBottom: 14 },
   playButton: {
     backgroundColor: colors.accent,
     borderRadius: radius.pill,

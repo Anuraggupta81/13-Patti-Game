@@ -1,4 +1,4 @@
-import { MatchState } from './game/types';
+import { HouseRules, MatchState } from './game/types';
 
 export interface Standing {
   seat: number;
@@ -40,4 +40,31 @@ export function playerSummary(match: MatchState, humanSeat = 0): string {
   }
   const points = me.behind === 1 ? '1 point' : `${me.behind} points`;
   return `You're ${ORDINAL[me.position] ?? `${me.position}th`}, ${points} behind the leader.`;
+}
+
+/**
+ * Personal recap for the round, with one tip (review deck, slide 11 and 15).
+ * Counts the hands the human player won.
+ */
+export function roundRecap(match: MatchState, humanSeat = 0): { recap: string; tip: string } {
+  const won = match.handWinners.filter((w) => w.includes(humanSeat)).length;
+  const total = match.handWinners.length;
+  const recap = `You won ${won} of ${total} hands this round.`;
+  const tip =
+    won === 0
+      ? 'Tip: keep pairs and sequences together in your strongest hands. Try Suggest.'
+      : won === 1
+        ? 'Tip: your weakest hand lost. Use Undo to compare arrangements before you show.'
+        : won === 2
+          ? 'Tip: a higher spare card breaks ties, so keep your best spare in mind.'
+          : 'Great round. Keep the same strategy.';
+  return { recap, tip };
+}
+
+/** One-line summary of house rules, e.g. "5 rounds · No timer · Sweep +3 · Medium". */
+export function rulesSummary(rules: HouseRules): string {
+  const timer = rules.arrangeSeconds === 0 ? 'No timer' : `${rules.arrangeSeconds}s to arrange`;
+  const sweep = rules.sweepBonus === 0 ? 'Sweep off' : `Sweep +${rules.sweepBonus}`;
+  const level = rules.difficulty.charAt(0).toUpperCase() + rules.difficulty.slice(1);
+  return `${rules.rounds} rounds · ${timer} · ${sweep} · ${level}`;
 }

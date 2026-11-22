@@ -8,7 +8,8 @@ import {
   undoAnnouncement,
 } from '../accessibility';
 import { cardName } from '../game/cards';
-import { playerSummary, standings } from '../results';
+import { playerSummary, roundRecap, standings } from '../results';
+import { hapticTap, hapticWin } from '../display';
 import { RULES_TEXT } from '../rulesText';
 import { StrengthMeter } from '../components/StrengthMeter';
 import {
@@ -46,6 +47,10 @@ interface Props {
   initialMatch: MatchState;
   soundOn: boolean;
   onToggleSound: (on: boolean) => void;
+  /** Reveal the next hand automatically after a short pause. */
+  autoAdvance: boolean;
+  /** Vibration on swaps and winning hands. */
+  hapticsOn: boolean;
   /** Leave the table, keeping the match so it can be resumed later. */
   onSuspend: (match: MatchState) => void;
   /** Match finished; record results and return home. */
@@ -56,7 +61,15 @@ function handOf(layout: Card[], h: number): Card[] {
   return layout.slice(h * HAND_SIZE, h * HAND_SIZE + HAND_SIZE);
 }
 
-export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, onFinish }: Props) {
+export function GameScreen({
+  initialMatch,
+  soundOn,
+  onToggleSound,
+  autoAdvance,
+  hapticsOn,
+  onSuspend,
+  onFinish,
+}: Props) {
   const [match, setMatch] = useState<MatchState>(initialMatch);
   const [selected, setSelected] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
@@ -129,9 +142,18 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
 
   useEffect(() => {
     if (match.revealed === 0 || match.phase === 'arrange') return;
-    const winners = (match.handWinners[match.revealed - 1] ?? []).map((s) => match.seats[s].name);
+    const winnerSeats = match.handWinners[match.revealed - 1] ?? [];
+    const winners = winnerSeats.map((s) => match.seats[s].name);
     AccessibilityInfo.announceForAccessibility(handAnnouncement(match.revealed, HANDS_PER_ROUND, winners));
+    if (winnerSeats.includes(HUMAN_SEAT)) hapticWin(hapticsOn);
   }, [match.revealed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-advance: reveal the next hand after a short pause, if the setting is on.
+  useEffect(() => {
+    if (!autoAdvance || match.phase !== 'reveal' || match.revealed === 0) return;
+    const id = setTimeout(() => setMatch((m) => revealNextHand(m)), 2500);
+    return () => clearTimeout(id);
+  }, [autoAdvance, match.phase, match.revealed]);
 
   useEffect(() => {
     if (match.phase === 'roundOver') {
@@ -159,6 +181,7 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
       rememberForUndo();
       setSelected(null);
       setMatch((m) => swapCards(m, a, i));
+      hapticTap(hapticsOn);
       AccessibilityInfo.announceForAccessibility(swapAnnouncement());
     }
   }
@@ -373,6 +396,8 @@ export function GameScreen({ initialMatch, soundOn, onToggleSound, onSuspend, on
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>Round {match.round} done</Text>
             <Text style={styles.summary}>{playerSummary(match)}</Text>
+            <Text style={styles.summary}>{roundRecap(match).recap}</Text>
+            <Text style={styles.summary}>{roundRecap(match).tip}</Text>
             {standings(match).map((row) => (
               <View key={row.seat} style={styles.resultRow}>
                 <Text style={styles.position}>{row.position}</Text>

@@ -19,11 +19,13 @@ import {
 } from './src/storage';
 import {
   Consent,
+  isBlockedAsMinor,
   needsAgeConfirmation,
   needsLegalAcceptance,
   NO_CONSENT,
   withAdultConfirmed,
   withLegalAccepted,
+  withUnderAge,
 } from './src/legal/consent';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { GameScreen } from './src/screens/GameScreen';
@@ -32,6 +34,8 @@ import { LegalConsentScreen } from './src/screens/LegalConsentScreen';
 import { AgeGateScreen } from './src/screens/AgeGateScreen';
 import { colors } from './src/theme';
 import { RIVALS } from './src/avatars';
+import { DEFAULT_DISPLAY, DisplayContext } from './src/display';
+import { PrefKey } from './src/components/SettingsSheet';
 
 type Screen = 'loading' | 'legal' | 'age' | 'setup' | 'home' | 'game';
 
@@ -52,6 +56,8 @@ function buildSeats(profile: Profile): PlayerSeat[] {
  * After that the player goes straight to the home screen.
  */
 function firstScreenFor(consent: Consent, profile: Profile): Screen {
+  // A player who said "under 18" stays at the age screen (Q-12).
+  if (isBlockedAsMinor(consent)) return 'age';
   if (needsLegalAcceptance(consent)) return 'legal';
   if (needsAgeConfirmation(consent)) return 'age';
   if (!profile.characterName) return 'setup';
@@ -116,6 +122,13 @@ export default function App() {
     setScreen(firstScreenFor(updated, profile!));
   }
 
+  /** Player said they are under 18. Remembered, so the app stays closed on later launches. */
+  async function rememberUnder18() {
+    const updated = withUnderAge(consent, new Date());
+    await saveConsent(updated);
+    setConsent(updated);
+  }
+
   /** Player confirmed they are over 18. Saved once. */
   async function confirmOver18() {
     const updated = withAdultConfirmed(consent, new Date());
@@ -134,6 +147,8 @@ export default function App() {
     const saved = await loadActiveGame();
     const startFresh = () => {
       clearActiveGame();
+      // Remember the rules, so the home screen can show them next time.
+      saveProfile({ ...profile, lastRules: rules }).then((ok) => ok && setProfile({ ...profile, lastRules: rules }));
       setGame(createMatch(rules, buildSeats(profile), Math.random));
       setScreen('game');
     };
@@ -220,14 +235,20 @@ export default function App() {
     setScreen('setup');
   }
 
-  /** Sound on or off. Saved to the device profile. */
-  async function setSound(on: boolean) {
+  /** Saves one setting (sound, display or feedback) to the device profile. */
+  async function setPref(key: PrefKey | 'soundOn', on: boolean) {
     if (!profile) return;
-    const updated: Profile = { ...profile, soundOn: on };
+    const updated: Profile = { ...profile, [key]: on };
     const saved = await saveProfile(updated);
     if (saved) setProfile(updated);
-    else Alert.alert('Could not save', 'Could not save your sound setting. Please try again.');
+    else Alert.alert('Could not save', 'Could not save your setting. Please try again.');
   }
+
+  const setSound = (on: boolean) => setPref('soundOn', on);
+
+  const display = profile
+    ? { fourColour: profile.fourColour, largeCards: profile.largeCards, hapticsOn: profile.hapticsOn }
+    : DEFAULT_DISPLAY;
 
   /** Saves the character name and avatar. The new values show only once saved. */
   async function saveCharacter(characterName: string, avatarId: string) {
@@ -245,6 +266,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <DisplayContext.Provider value={display}>
       <SafeAreaView style={styles.root} edges={['top', 'bottom', 'left', 'right']}>
         <StatusBar style="light" />
         {screen === 'loading' && (
@@ -253,7 +275,13 @@ export default function App() {
           </View>
         )}
         {screen === 'legal' && <LegalConsentScreen onAccept={acceptLegal} />}
-        {screen === 'age' && <AgeGateScreen onOver18={confirmOver18} />}
+        {screen === 'age' && (
+          <AgeGateScreen
+            onOver18={confirmOver18}
+            onUnder18={rememberUnder18}
+            alreadyUnder18={isBlockedAsMinor(consent)}
+          />
+        )}
         {screen === 'setup' && profile && (
           <SetupScreen
             mode={setupMode}
@@ -270,6 +298,7 @@ export default function App() {
             soundOn={profile.soundOn}
             onToggleSound={setSound}
             onResetProgress={askResetProgress}
+            onPref={setPref}
             onStart={startMatch}
             onEditCharacter={() => {
               setSetupMode('edit');
@@ -282,11 +311,14 @@ export default function App() {
             initialMatch={game}
             soundOn={profile.soundOn}
             onToggleSound={setSound}
+            autoAdvance={profile.autoAdvance}
+            hapticsOn={profile.hapticsOn}
             onSuspend={suspendGame}
             onFinish={finishGame}
           />
         )}
       </SafeAreaView>
+      </DisplayContext.Provider>
     </SafeAreaProvider>
   );
 }

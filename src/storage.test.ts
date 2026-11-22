@@ -152,6 +152,14 @@ describe('character name is remembered', () => {
   });
 });
 
+describe('under-18 answer is saved on the device', () => {
+  it('keeps the under-18 record after save and reload', async () => {
+    const minor = { legalVersion: null, legalAcceptedAt: null, over18ConfirmedAt: null, underAgeAt: '2026-11-22T08:00:00.000Z' };
+    await saveConsent(minor);
+    expect(await loadConsent()).toEqual(minor);
+  });
+});
+
 describe('reset progress', () => {
   const seats = [
     { name: 'Anu', avatarId: 'fox', isHuman: true },
@@ -188,6 +196,7 @@ describe('reset progress', () => {
       legalVersion: '1.0',
       legalAcceptedAt: '2026-11-22T08:00:00.000Z',
       over18ConfirmedAt: '2026-11-22T08:01:00.000Z',
+      underAgeAt: null,
     };
     await saveConsent(consent);
     await resetProgress();
